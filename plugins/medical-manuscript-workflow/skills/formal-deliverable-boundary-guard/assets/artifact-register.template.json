@@ -1,0 +1,15 @@
+{
+  "protocol": "formal-revision-artifact/1.0",
+  "artifacts": [
+    {
+      "id": "A-001",
+      "path": "relative/path/to/file.docx",
+      "role": "formal",
+      "status": "candidate",
+      "export_allowed": true,
+      "derived_from": [],
+      "owner_decision": "approved",
+      "notes_internal": ""
+    }
+  ]
+}

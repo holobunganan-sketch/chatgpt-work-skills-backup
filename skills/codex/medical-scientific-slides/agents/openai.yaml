@@ -1,0 +1,9 @@
+interface:
+  display_name: "医学科研汇报幻灯片"
+  short_description: "Formal slide generation for medical and research presentations"
+  icon_small: "./assets/medical-scientific-slides-small.svg"
+  brand_color: "#B31F2A"
+  default_prompt: "Use $medical-scientific-slides to turn my topic, outline, data, or draft into formal slides for medical, research, or strategy communication."
+
+policy:
+  allow_implicit_invocation: true

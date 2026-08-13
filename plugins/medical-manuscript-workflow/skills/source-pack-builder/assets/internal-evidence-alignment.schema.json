@@ -1,0 +1,216 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Internal Argument-Evidence Alignment Map",
+  "type": "object",
+  "required": ["schema_version", "document_mainline", "sources"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "document_mainline": {
+      "type": "object",
+      "required": ["core_question", "target_answer", "nodes"],
+      "additionalProperties": false,
+      "properties": {
+        "core_question": {
+          "type": "string",
+          "minLength": 1
+        },
+        "target_answer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "nodes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["id", "judgment", "next_node"],
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "judgment": {
+                "type": "string",
+                "minLength": 1
+              },
+              "next_node": {
+                "type": ["string", "null"]
+              }
+            }
+          }
+        }
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "source_id",
+          "citation",
+          "reading_status",
+          "passages",
+          "uses"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "citation": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reading_status": {
+            "enum": [
+              "full_text",
+              "relevant_sections",
+              "abstract_only",
+              "metadata_only",
+              "unavailable"
+            ]
+          },
+          "passages": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["locator", "supported_proposition"],
+              "additionalProperties": false,
+              "properties": {
+                "locator": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "supported_proposition": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          },
+          "uses": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "decision",
+                "mainline_node",
+                "section",
+                "evidence_task",
+                "minimum_usable_proposition",
+                "upstream_anchor",
+                "missing_relation",
+                "downstream_advance",
+                "citation_entry_point",
+                "continuity",
+                "adaptation_instruction"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "decision": {
+                  "enum": [
+                    "include",
+                    "move",
+                    "background_only",
+                    "exclude"
+                  ]
+                },
+                "mainline_node": {
+                  "type": "string"
+                },
+                "section": {
+                  "type": "string"
+                },
+                "evidence_task": {
+                  "enum": [
+                    "establish_fact",
+                    "quantify",
+                    "define",
+                    "explain",
+                    "compare",
+                    "distinguish",
+                    "bridge",
+                    "method",
+                    "counterpoint",
+                    "support_action"
+                  ]
+                },
+                "minimum_usable_proposition": {
+                  "type": "string"
+                },
+                "upstream_anchor": {
+                  "type": "string"
+                },
+                "missing_relation": {
+                  "type": "string"
+                },
+                "downstream_advance": {
+                  "type": "string"
+                },
+                "citation_entry_point": {
+                  "type": "string"
+                },
+                "continuity": {
+                  "type": "object",
+                  "required": [
+                    "subject",
+                    "terminology",
+                    "tone",
+                    "abstraction_level",
+                    "sentence_function"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "subject": {
+                      "enum": [
+                        "continuous",
+                        "requires_adaptation",
+                        "incompatible"
+                      ]
+                    },
+                    "terminology": {
+                      "enum": [
+                        "continuous",
+                        "requires_adaptation",
+                        "incompatible"
+                      ]
+                    },
+                    "tone": {
+                      "enum": [
+                        "continuous",
+                        "requires_adaptation",
+                        "incompatible"
+                      ]
+                    },
+                    "abstraction_level": {
+                      "enum": [
+                        "continuous",
+                        "requires_adaptation",
+                        "incompatible"
+                      ]
+                    },
+                    "sentence_function": {
+                      "enum": [
+                        "continuous",
+                        "requires_adaptation",
+                        "incompatible"
+                      ]
+                    }
+                  }
+                },
+                "adaptation_instruction": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

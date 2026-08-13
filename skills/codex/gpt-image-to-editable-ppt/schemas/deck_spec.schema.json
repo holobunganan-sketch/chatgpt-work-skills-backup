@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/gpt-image-to-editable-ppt/deck_spec.schema.json",
+  "title": "Editable PowerPoint deck specification",
+  "type": "object",
+  "required": ["deck", "slides"],
+  "properties": {
+    "deck": {
+      "type": "object",
+      "required": ["title"],
+      "properties": {
+        "title": {"type": "string", "minLength": 1},
+        "audience": {"type": "string"},
+        "language": {"type": "string", "default": "zh-CN"},
+        "delivery_mode": {"enum": ["hybrid", "native", "image"], "default": "hybrid"},
+        "template_path": {"type": ["string", "null"]}
+      },
+      "additionalProperties": true
+    },
+    "slides": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/slide"}
+    }
+  },
+  "$defs": {
+    "slide": {
+      "type": "object",
+      "required": ["id", "page_type", "title"],
+      "properties": {
+        "id": {"type": ["string", "integer"]},
+        "page_type": {"enum": ["cover", "agenda", "section", "content", "closing"]},
+        "title": {"type": "string"},
+        "key_message": {"type": "string"},
+        "logic_type": {"enum": ["single_conclusion", "comparison", "process", "timeline", "hierarchy", "cause_effect", "problem_solution", "matrix", "cycle", "evidence_chain", "before_after", "spatial_structure"]},
+        "suppress_standard_chrome": {"type": "boolean", "default": false},
+        "elements": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/element"}
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"page_type": {"const": "content"}}},
+          "then": {"required": ["key_message", "logic_type"]}
+        }
+      ],
+      "additionalProperties": true
+    },
+    "element": {
+      "type": "object",
+      "required": ["id", "type", "x", "y", "w", "h"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "type": {"enum": ["text", "shape", "line", "image", "table", "chart"]},
+        "x": {"type": "number", "minimum": 0},
+        "y": {"type": "number", "minimum": 0},
+        "w": {"type": "number", "exclusiveMinimum": 0},
+        "h": {"type": "number", "minimum": 0},
+        "z": {"type": "integer", "default": 0},
+        "text": {"type": "string"},
+        "font_size_pt": {"type": "number"},
+        "font_family": {"type": "string"},
+        "color": {"type": "string", "pattern": "^#[0-9A-Fa-f]{6}$"},
+        "fill": {"type": "string", "pattern": "^#[0-9A-Fa-f]{6}$"},
+        "line_color": {"type": "string", "pattern": "^#[0-9A-Fa-f]{6}$"},
+        "shape": {"type": "string"},
+        "path": {"type": "string"},
+        "allow_overlap": {"type": "boolean", "default": false},
+        "data": {}
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

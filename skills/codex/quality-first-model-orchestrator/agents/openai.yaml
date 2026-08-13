@@ -1,0 +1,4 @@
+interface:
+  display_name: "Quality-First Model Orchestrator"
+  short_description: "Route subagents without lowering work quality"
+  default_prompt: "Use $quality-first-model-orchestrator to decompose this task, discover eligible subagent models, and execute a quality-gated multi-agent plan."

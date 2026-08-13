@@ -1,0 +1,9 @@
+interface:
+  display_name: "GPT Image → Editable PPT"
+  short_description: "Build editable, template-aware PowerPoint decks with GPT Image assets and native slide objects."
+  icon_small: "./assets/icon.svg"
+  icon_large: "./assets/icon.svg"
+  brand_color: "#2F6B9A"
+  default_prompt: "Create an editable PowerPoint deck using a structured slide blueprint, GPT Image only for visual references or isolated assets, and run all quality gates before delivery."
+policy:
+  allow_implicit_invocation: true

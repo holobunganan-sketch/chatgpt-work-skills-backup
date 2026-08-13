@@ -1,0 +1,607 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.codex/argument-centered-formal-editor/argument-evidence-map.schema.json",
+  "title": "Argument-centered formal editing work map",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "document",
+    "preservation",
+    "mainline",
+    "paragraphs",
+    "sources",
+    "bridges",
+    "editing_plan",
+    "verification"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "2.0"
+    },
+    "instructions": {
+      "type": "object"
+    },
+    "document": {
+      "type": "object",
+      "required": [
+        "document_type",
+        "purpose",
+        "core_question",
+        "target_answer"
+      ],
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "document_type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "purpose": {
+          "type": "string",
+          "minLength": 1
+        },
+        "primary_audience": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "core_question": {
+          "type": "string",
+          "minLength": 1
+        },
+        "target_answer": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "preservation": {
+      "type": "object",
+      "required": [
+        "controlled_terms",
+        "facts_and_numbers",
+        "citation_identifiers"
+      ],
+      "properties": {
+        "author_voice": {
+          "type": "string"
+        },
+        "controlled_terms": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "facts_and_numbers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "citation_identifiers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "citation_system": {
+          "type": "string"
+        },
+        "citation_representation": {
+          "type": "string"
+        },
+        "citation_integrity_requirements": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "mainline": {
+      "type": "object",
+      "required": [
+        "one_sentence_summary",
+        "topology",
+        "nodes"
+      ],
+      "properties": {
+        "one_sentence_summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "topology": {
+          "enum": [
+            "linear",
+            "branching_comparison",
+            "problem_solution",
+            "rule_application",
+            "temporal_causal",
+            "converging_findings",
+            "custom"
+          ]
+        },
+        "nodes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/mainlineNode"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "paragraphs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/paragraph"
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/source"
+      }
+    },
+    "bridges": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/bridge"
+      }
+    },
+    "feedback": {
+      "type": "array"
+    },
+    "editing_plan": {
+      "type": "array",
+      "minItems": 1
+    },
+    "blockers": {
+      "type": "array"
+    },
+    "verification": {
+      "type": "object",
+      "required": [
+        "core_question_clear",
+        "target_answer_clear",
+        "mainline_continuous",
+        "paragraph_judgments_clear",
+        "every_used_source_has_argument_task",
+        "source_adaptation_matches_alignment",
+        "mainline_adjustments_have_document_gain",
+        "bridges_complete",
+        "voice_and_terms_continuous",
+        "academic_language_concrete",
+        "facts_numbers_and_citations_preserved",
+        "no_new_evidence_boundaries_or_defensive_prose",
+        "no_process_or_feedback_trace"
+      ],
+      "additionalProperties": {
+        "type": "boolean"
+      }
+    }
+  },
+  "$defs": {
+    "mainlineNode": {
+      "type": "object",
+      "required": [
+        "node_id",
+        "judgment",
+        "function",
+        "next_node_ids",
+        "status"
+      ],
+      "properties": {
+        "node_id": {
+          "type": "string",
+          "pattern": "^M[0-9]+$"
+        },
+        "judgment": {
+          "type": "string",
+          "minLength": 1
+        },
+        "function": {
+          "type": "string",
+          "minLength": 1
+        },
+        "next_node_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^M[0-9]+$"
+          }
+        },
+        "status": {
+          "enum": [
+            "keep",
+            "revise",
+            "add",
+            "remove"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "paragraph": {
+      "type": "object",
+      "required": [
+        "paragraph_id",
+        "target_judgment",
+        "mainline_node_ids",
+        "reader_enters_knowing",
+        "reader_leaves_knowing",
+        "source_ids",
+        "edit_level"
+      ],
+      "properties": {
+        "paragraph_id": {
+          "type": "string",
+          "pattern": "^P[0-9]+$"
+        },
+        "current_judgment": {
+          "type": "string"
+        },
+        "target_judgment": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mainline_node_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^M[0-9]+$"
+          }
+        },
+        "reader_enters_knowing": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reader_leaves_knowing": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^E[0-9]+$"
+          }
+        },
+        "edit_level": {
+          "enum": [
+            "word",
+            "sentence",
+            "sentence_group",
+            "paragraph",
+            "adjacent_paragraphs",
+            "section"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "source_id",
+        "source_reference",
+        "source_narrative_alignment",
+        "adaptation_action",
+        "mainline_adjustment_needed",
+        "disposition"
+      ],
+      "properties": {
+        "source_id": {
+          "type": "string",
+          "pattern": "^E[0-9]+$"
+        },
+        "source_reference": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provided_content": {
+          "type": "string"
+        },
+        "usable_proposition": {
+          "type": "string"
+        },
+        "source_narrative_alignment": {
+          "enum": [
+            "high",
+            "partial",
+            "local_only",
+            "none"
+          ]
+        },
+        "adaptation_action": {
+          "enum": [
+            "retain",
+            "light_adapt",
+            "extract",
+            "drop"
+          ]
+        },
+        "target_paragraph_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^P[0-9]+$"
+          }
+        },
+        "argument_task": {
+          "enum": [
+            "establish",
+            "quantify",
+            "explain",
+            "compare_consistency",
+            "compare_difference",
+            "bridge",
+            "discriminate",
+            "connect",
+            "support_next_step",
+            "example"
+          ]
+        },
+        "entry_proposition": {
+          "type": "string"
+        },
+        "inference_gap": {
+          "type": "string"
+        },
+        "authored_inference": {
+          "type": "string"
+        },
+        "next_proposition": {
+          "type": "string"
+        },
+        "mainline_adjustment_needed": {
+          "enum": [
+            "none",
+            "local",
+            "section"
+          ]
+        },
+        "mainline_adjustment_reason": {
+          "type": "string"
+        },
+        "citation_anchor": {
+          "type": "string"
+        },
+        "disposition": {
+          "enum": [
+            "use",
+            "hold",
+            "drop"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "disposition": {
+                "const": "use"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "usable_proposition",
+              "target_paragraph_ids",
+              "argument_task",
+              "entry_proposition",
+              "inference_gap",
+              "authored_inference",
+              "next_proposition",
+              "citation_anchor"
+            ],
+            "properties": {
+              "usable_proposition": {
+                "minLength": 1
+              },
+              "target_paragraph_ids": {
+                "minItems": 1
+              },
+              "entry_proposition": {
+                "minLength": 1
+              },
+              "inference_gap": {
+                "minLength": 1
+              },
+              "authored_inference": {
+                "minLength": 1
+              },
+              "next_proposition": {
+                "minLength": 1
+              },
+              "citation_anchor": {
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "source_narrative_alignment": {
+                "const": "high"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "adaptation_action": {
+                "enum": [
+                  "retain",
+                  "light_adapt",
+                  "drop"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "source_narrative_alignment": {
+                "const": "partial"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "adaptation_action": {
+                "enum": [
+                  "light_adapt",
+                  "extract",
+                  "drop"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "source_narrative_alignment": {
+                "const": "local_only"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "adaptation_action": {
+                "enum": [
+                  "extract",
+                  "drop"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "source_narrative_alignment": {
+                "const": "none"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "adaptation_action": {
+                "const": "drop"
+              },
+              "disposition": {
+                "const": "drop"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "mainline_adjustment_needed": {
+                "enum": [
+                  "local",
+                  "section"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "mainline_adjustment_reason"
+            ],
+            "properties": {
+              "mainline_adjustment_reason": {
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "disposition": {
+                "const": "drop"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "adaptation_action": {
+                "const": "drop"
+              }
+            }
+          }
+        }
+      ],
+      "additionalProperties": true
+    },
+    "bridge": {
+      "type": "object",
+      "required": [
+        "bridge_id",
+        "paragraph_id",
+        "from_proposition",
+        "inference_gap",
+        "source_ids",
+        "evidence_contribution",
+        "authored_inference",
+        "to_proposition",
+        "surface_plan"
+      ],
+      "properties": {
+        "bridge_id": {
+          "type": "string",
+          "pattern": "^B[0-9]+$"
+        },
+        "paragraph_id": {
+          "type": "string",
+          "pattern": "^P[0-9]+$"
+        },
+        "from_proposition": {
+          "type": "string",
+          "minLength": 1
+        },
+        "inference_gap": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^E[0-9]+$"
+          }
+        },
+        "evidence_contribution": {
+          "type": "string",
+          "minLength": 1
+        },
+        "authored_inference": {
+          "type": "string",
+          "minLength": 1
+        },
+        "to_proposition": {
+          "type": "string",
+          "minLength": 1
+        },
+        "surface_plan": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

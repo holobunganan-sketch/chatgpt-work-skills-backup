@@ -1,0 +1,7 @@
+python-pptx>=1.0.2
+Pillow>=10.0.0
+PyYAML>=6.0.1
+jsonschema>=4.20.0
+lxml>=5.0.0
+numpy>=1.26.0
+PyMuPDF>=1.24.0

@@ -1,0 +1,340 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-13T18:03:23.2299816+08:00",
+  "purpose": "Portable backup for ChatGPT Work user skills and one personal plugin.",
+  "skills": {
+    "codex": [
+      {
+        "name": "argument-centered-formal-editor",
+        "fileCount": 14,
+        "bytes": 137701
+      },
+      {
+        "name": "clinical-decision-support",
+        "fileCount": 22,
+        "bytes": 370033
+      },
+      {
+        "name": "compiling-tasks-for-delegation",
+        "fileCount": 30,
+        "bytes": 59686
+      },
+      {
+        "name": "cross-artifact-consistency",
+        "fileCount": 10,
+        "bytes": 83677
+      },
+      {
+        "name": "docx-precision-edit",
+        "fileCount": 8,
+        "bytes": 67557
+      },
+      {
+        "name": "ethics-materials-docx-delivery",
+        "fileCount": 2,
+        "bytes": 5770
+      },
+      {
+        "name": "fact-check",
+        "fileCount": 2,
+        "bytes": 2283
+      },
+      {
+        "name": "formal-deliverable-boundary-guard",
+        "fileCount": 9,
+        "bytes": 46825
+      },
+      {
+        "name": "formal-deliverable-cowork",
+        "fileCount": 2,
+        "bytes": 4664
+      },
+      {
+        "name": "format-manuscript-delivery",
+        "fileCount": 16,
+        "bytes": 138004
+      },
+      {
+        "name": "gpt-image-to-editable-ppt",
+        "fileCount": 38,
+        "bytes": 259384
+      },
+      {
+        "name": "handoff-document-generator",
+        "fileCount": 2,
+        "bytes": 9677
+      },
+      {
+        "name": "human-in-loop-revision",
+        "fileCount": 9,
+        "bytes": 91763
+      },
+      {
+        "name": "humanizer",
+        "fileCount": 1,
+        "bytes": 19807
+      },
+      {
+        "name": "humanizer-zh",
+        "fileCount": 2,
+        "bytes": 21497
+      },
+      {
+        "name": "journal-format-reviewer",
+        "fileCount": 3,
+        "bytes": 7012
+      },
+      {
+        "name": "medical-scientific-slides",
+        "fileCount": 5,
+        "bytes": 14403
+      },
+      {
+        "name": "parallel-web",
+        "fileCount": 5,
+        "bytes": 19249
+      },
+      {
+        "name": "pdf",
+        "fileCount": 4,
+        "bytes": 15097
+      },
+      {
+        "name": "playwright",
+        "fileCount": 9,
+        "bytes": 23256
+      },
+      {
+        "name": "ppt-master",
+        "fileCount": 12230,
+        "bytes": 65106037
+      },
+      {
+        "name": "pptx-generator",
+        "fileCount": 6,
+        "bytes": 62843
+      },
+      {
+        "name": "presentation-production-system",
+        "fileCount": 15,
+        "bytes": 59699
+      },
+      {
+        "name": "presentation-visual-narrative-refiner",
+        "fileCount": 2,
+        "bytes": 8833
+      },
+      {
+        "name": "quality-first-model-orchestrator",
+        "fileCount": 15,
+        "bytes": 76140
+      },
+      {
+        "name": "reconstruct-local-project-context",
+        "fileCount": 2,
+        "bytes": 5465
+      },
+      {
+        "name": "scientific-writing",
+        "fileCount": 6,
+        "bytes": 152381
+      },
+      {
+        "name": "self-improving",
+        "fileCount": 15,
+        "bytes": 33479
+      },
+      {
+        "name": "slide-architect",
+        "fileCount": 5,
+        "bytes": 10844
+      },
+      {
+        "name": "source-pack-builder",
+        "fileCount": 7,
+        "bytes": 46674
+      },
+      {
+        "name": "submission-grade-medical-research-pipeline",
+        "fileCount": 8,
+        "bytes": 27951
+      },
+      {
+        "name": "submission-grade-scientific-research-pipeline",
+        "fileCount": 8,
+        "bytes": 24352
+      },
+      {
+        "name": "top-journal-data-plan",
+        "fileCount": 3,
+        "bytes": 17072
+      },
+      {
+        "name": "traceable-release-auditor",
+        "fileCount": 10,
+        "bytes": 26004
+      },
+      {
+        "name": "write-evidence-grounded-manuscript",
+        "fileCount": 10,
+        "bytes": 52272
+      },
+      {
+        "name": "writing-result-centered-discussion",
+        "fileCount": 92,
+        "bytes": 160396
+      }
+    ],
+    "agents": [
+      {
+        "name": "clinical-decision-support",
+        "fileCount": 22,
+        "bytes": 370033
+      },
+      {
+        "name": "doc",
+        "fileCount": 6,
+        "bytes": 27210
+      },
+      {
+        "name": "docx",
+        "fileCount": 59,
+        "bytes": 1141646
+      },
+      {
+        "name": "fact-check",
+        "fileCount": 2,
+        "bytes": 2283
+      },
+      {
+        "name": "formal-deliverable-cowork",
+        "fileCount": 2,
+        "bytes": 4664
+      },
+      {
+        "name": "handoff-document-generator",
+        "fileCount": 2,
+        "bytes": 9677
+      },
+      {
+        "name": "humanizer",
+        "fileCount": 1,
+        "bytes": 19807
+      },
+      {
+        "name": "journal-format-reviewer",
+        "fileCount": 3,
+        "bytes": 7012
+      },
+      {
+        "name": "medical-scientific-slides",
+        "fileCount": 5,
+        "bytes": 14403
+      },
+      {
+        "name": "officecli",
+        "fileCount": 1,
+        "bytes": 26391
+      },
+      {
+        "name": "parallel-web",
+        "fileCount": 5,
+        "bytes": 19249
+      },
+      {
+        "name": "pdf",
+        "fileCount": 4,
+        "bytes": 15097
+      },
+      {
+        "name": "playwright",
+        "fileCount": 9,
+        "bytes": 23256
+      },
+      {
+        "name": "pptx-generator",
+        "fileCount": 6,
+        "bytes": 62843
+      },
+      {
+        "name": "presentation-production-system",
+        "fileCount": 15,
+        "bytes": 59699
+      },
+      {
+        "name": "project-cognition",
+        "fileCount": 17,
+        "bytes": 157516
+      },
+      {
+        "name": "self-improving",
+        "fileCount": 15,
+        "bytes": 33479
+      },
+      {
+        "name": "slide-architect",
+        "fileCount": 5,
+        "bytes": 10844
+      },
+      {
+        "name": "slides-grab",
+        "fileCount": 2,
+        "bytes": 5196
+      },
+      {
+        "name": "slides-grab-design",
+        "fileCount": 4,
+        "bytes": 21836
+      },
+      {
+        "name": "slides-grab-export",
+        "fileCount": 5,
+        "bytes": 38045
+      },
+      {
+        "name": "slides-grab-plan",
+        "fileCount": 3,
+        "bytes": 5527
+      },
+      {
+        "name": "source-pack-builder",
+        "fileCount": 7,
+        "bytes": 46674
+      },
+      {
+        "name": "submission-grade-medical-research-pipeline",
+        "fileCount": 8,
+        "bytes": 28030
+      },
+      {
+        "name": "submission-grade-scientific-research-pipeline",
+        "fileCount": 8,
+        "bytes": 24431
+      },
+      {
+        "name": "top-journal-data-plan",
+        "fileCount": 3,
+        "bytes": 17072
+      }
+    ],
+    "sharedSupport": {
+      "name": "submission-grade-research-core",
+      "fileCount": 5,
+      "bytes": 19396
+    }
+  },
+  "plugin": {
+    "name": "medical-manuscript-workflow",
+    "version": "0.1.0+codex.20260806083632",
+    "fileCount": 225,
+    "bytes": 973799,
+    "sourceBaseline": "~/plugins/medical-manuscript-workflow",
+    "cacheMatch": "Key files matched the installed personal plugin cache at packaging time."
+  },
+  "excluded": [
+    "Managed Codex system skills and runtime",
+    "Official and remote plugin caches",
+    "Credentials and config.toml",
+    "Logs, sessions, browser state, installation identifiers, and Python bytecode"
+  ]
+}

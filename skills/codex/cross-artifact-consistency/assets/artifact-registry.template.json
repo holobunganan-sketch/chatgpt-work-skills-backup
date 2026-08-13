@@ -1,0 +1,177 @@
+{
+  "schema_version": "1.0",
+  "registry_id": "REG-YYYYMMDD-001",
+  "project_id": "PROJECT-ID",
+  "created_at": "YYYY-MM-DDTHH:MM:SS+00:00",
+  "artifacts": [
+    {
+      "artifact_id": "source-master",
+      "path": "source/master.ext",
+      "role": "authoritative",
+      "tags": [
+        "source"
+      ],
+      "format": "document",
+      "version": "1.0",
+      "status": "source_locked",
+      "derived_from": [],
+      "content_dimensions": [
+        "term",
+        "number",
+        "identifier",
+        "reference",
+        "version",
+        "structure"
+      ],
+      "fingerprint": {
+        "algorithm": "sha256",
+        "value": ""
+      }
+    },
+    {
+      "artifact_id": "deliverable-clean",
+      "path": "deliverables/content-clean.ext",
+      "role": "derived",
+      "tags": [
+        "deliverable",
+        "clean"
+      ],
+      "format": "document",
+      "version": "1.0",
+      "status": "sync_pending",
+      "derived_from": [
+        "source-master"
+      ],
+      "content_dimensions": [
+        "term",
+        "number",
+        "identifier",
+        "reference",
+        "version",
+        "structure"
+      ],
+      "fingerprint": {
+        "algorithm": "sha256",
+        "value": ""
+      }
+    },
+    {
+      "artifact_id": "deliverable-marked",
+      "path": "deliverables/content-marked.ext",
+      "role": "derived",
+      "tags": [
+        "deliverable",
+        "marked"
+      ],
+      "format": "document",
+      "version": "1.0",
+      "status": "sync_pending",
+      "derived_from": [
+        "source-master"
+      ],
+      "content_dimensions": [
+        "term",
+        "number",
+        "identifier",
+        "reference",
+        "version",
+        "structure"
+      ],
+      "fingerprint": {
+        "algorithm": "sha256",
+        "value": ""
+      }
+    }
+  ],
+  "canonical_items": [
+    {
+      "key": "term.example",
+      "dimension": "term",
+      "value": "规范名称",
+      "semantics": "说明该规范项的含义、适用范围和排除范围。",
+      "source_artifact_id": "source-master",
+      "source_locator": "稳定章节、单元格、对象 ID 或其他可核查位置",
+      "aliases": [
+        "允许的简称"
+      ],
+      "occurrences": [
+        {
+          "artifact_id": "source-master",
+          "locator": "section/example",
+          "context": "定义位置",
+          "required": true
+        },
+        {
+          "artifact_id": "deliverable-clean",
+          "locator": "section/example",
+          "context": "派生位置",
+          "required": true
+        },
+        {
+          "artifact_id": "deliverable-marked",
+          "locator": "section/example",
+          "context": "派生位置",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "propagation_rules": [
+    {
+      "rule_id": "PROP-001",
+      "from_artifact_id": "source-master",
+      "to_artifact_id": "deliverable-clean",
+      "dimensions": [
+        "term",
+        "number",
+        "identifier",
+        "reference",
+        "version",
+        "structure"
+      ],
+      "mode": "generated_from",
+      "required": true
+    },
+    {
+      "rule_id": "PROP-002",
+      "from_artifact_id": "source-master",
+      "to_artifact_id": "deliverable-marked",
+      "dimensions": [
+        "term",
+        "number",
+        "identifier",
+        "reference",
+        "version",
+        "structure"
+      ],
+      "mode": "generated_from",
+      "required": true
+    }
+  ],
+  "release_sets": [
+    {
+      "release_set_id": "RELEASE-001",
+      "member_artifact_ids": [
+        "deliverable-clean",
+        "deliverable-marked"
+      ],
+      "content_equivalence_groups": [
+        {
+          "group_id": "clean-marked-content",
+          "artifact_ids": [
+            "deliverable-clean",
+            "deliverable-marked"
+          ],
+          "canonical_source_artifact_id": "source-master",
+          "allowed_differences": [
+            "highlight",
+            "revision_marks",
+            "comment_visibility",
+            "presentation_metadata"
+          ]
+        }
+      ]
+    }
+  ],
+  "extensions": {}
+}

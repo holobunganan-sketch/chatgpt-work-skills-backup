@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.codex/medical-manuscript-workflow/project-contract.schema.json",
+  "title": "Medical manuscript project contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "project_id",
+    "task_type",
+    "article_type",
+    "research_question",
+    "target_journal",
+    "format_source",
+    "source_root",
+    "internal_root",
+    "delivery_root",
+    "authoritative_manuscript",
+    "reviewer_sources",
+    "zotero_status",
+    "protected_elements",
+    "authorized_reads",
+    "authorized_writes",
+    "formal_allowlist",
+    "blockers"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "project_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{2,79}$"},
+    "task_type": {
+      "enum": [
+        "new_manuscript",
+        "existing_manuscript_revision",
+        "reviewer_revision",
+        "discussion_only",
+        "formatting_only",
+        "audit_only"
+      ]
+    },
+    "article_type": {"type": "string", "minLength": 1},
+    "research_question": {"type": "string", "minLength": 1},
+    "target_journal": {"type": ["string", "null"]},
+    "format_source": {"enum": ["user", "journal", "default"]},
+    "source_root": {"$ref": "#/$defs/path"},
+    "internal_root": {"$ref": "#/$defs/path"},
+    "delivery_root": {"$ref": "#/$defs/path"},
+    "authoritative_manuscript": {"oneOf": [{"$ref": "#/$defs/artifact"}, {"type": "null"}]},
+    "reviewer_sources": {"type": "array", "items": {"$ref": "#/$defs/artifact"}},
+    "zotero_status": {"enum": ["existing", "available", "missing", "not_required"]},
+    "protected_elements": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "zotero_fields",
+          "word_fields",
+          "cross_references",
+          "bookmarks",
+          "comments",
+          "tracked_changes",
+          "content_controls",
+          "equations",
+          "drawings",
+          "custom_xml"
+        ]
+      }
+    },
+    "authorized_reads": {"type": "array", "items": {"$ref": "#/$defs/path"}},
+    "authorized_writes": {"type": "array", "items": {"$ref": "#/$defs/path"}},
+    "formal_allowlist": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1, "pattern": "^(?![A-Za-z]:)(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.?[/\\\\]).+$"}
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["code", "message", "resolved"],
+        "properties": {
+          "code": {"type": "string", "minLength": 1},
+          "message": {"type": "string", "minLength": 1},
+          "resolved": {"type": "boolean"}
+        }
+      }
+    }
+  },
+  "$defs": {
+    "path": {"type": "string", "minLength": 1},
+    "sha256": {"type": "string", "pattern": "^[A-Fa-f0-9]{64}$"},
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"$ref": "#/$defs/path"},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    }
+  }
+}

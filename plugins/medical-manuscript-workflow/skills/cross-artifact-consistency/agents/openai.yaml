@@ -1,0 +1,4 @@
+interface:
+  display_name: "跨交付物一致性协调"
+  short_description: "追踪多文件变更传导，锁定事实源并核验版本一致性与完整性"
+  default_prompt: "使用 $cross-artifact-consistency 梳理这组交付物的源与派生关系，生成受授权范围约束的变更影响计划并核验一致性。"

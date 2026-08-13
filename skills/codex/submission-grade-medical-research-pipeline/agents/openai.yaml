@@ -1,0 +1,4 @@
+interface:
+  display_name: "Submission-Grade Medical Research"
+  short_description: "One-idea-to-manuscript medical pipeline"
+  default_prompt: "Use $submission-grade-medical-research-pipeline to turn my one-sentence Chinese or English medical study idea into a submission-grade manuscript package, generating a synthetic dataset first when no real data are provided."

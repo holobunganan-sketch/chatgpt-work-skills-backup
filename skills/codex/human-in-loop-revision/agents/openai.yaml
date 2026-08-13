@@ -1,0 +1,4 @@
+interface:
+  display_name: "人在回路式正式修订"
+  short_description: "先分析反馈并经责任人批准，再安全实施和核查正式修订"
+  default_prompt: "使用 $human-in-loop-revision 对这组反馈执行保真提取、语义定位、分类关联和责任决策门控制，再在批准范围内实施并核查。"

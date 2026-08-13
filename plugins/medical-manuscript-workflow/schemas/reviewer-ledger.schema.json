@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.codex/medical-manuscript-workflow/reviewer-ledger.schema.json",
+  "title": "Reviewer revision ledger",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "project_id", "manuscript_sha256", "reviewers"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "project_id": {"type": "string", "minLength": 1},
+    "manuscript_sha256": {"$ref": "#/$defs/sha256"},
+    "reviewers": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/reviewer"}
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[A-Fa-f0-9]{64}$"},
+    "span": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start", "end"],
+      "properties": {
+        "start": {"type": "integer", "minimum": 0},
+        "end": {"type": "integer", "minimum": 1}
+      }
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "decided_at", "conditions", "conditions_met", "rationale"],
+      "properties": {
+        "state": {"enum": ["pending", "approved", "rejected", "deferred", "conditional_approved"]},
+        "decided_at": {"type": ["string", "null"], "format": "date-time"},
+        "conditions": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "conditions_met": {"type": "boolean"},
+        "rationale": {"type": "string"}
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact", "before", "after", "anchor", "sha256"],
+      "properties": {
+        "artifact": {"type": "string", "minLength": 1},
+        "before": {"type": "string"},
+        "after": {"type": "string"},
+        "anchor": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "implementation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "evidence"],
+      "properties": {
+        "status": {"enum": ["not_started", "in_progress", "implemented", "verified", "not_applicable"]},
+        "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}}
+      }
+    },
+    "location": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "entries"],
+      "properties": {
+        "status": {"enum": ["pending", "verified", "not_applicable"]},
+        "entries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["artifact", "section", "anchor"],
+            "properties": {
+              "artifact": {"type": "string", "minLength": 1},
+              "section": {"type": "string", "minLength": 1},
+              "page": {"type": ["integer", "null"], "minimum": 1},
+              "paragraph": {"type": ["integer", "null"], "minimum": 1},
+              "anchor": {"type": "string", "minLength": 1}
+            }
+          }
+        }
+      }
+    },
+    "comment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "comment_id",
+        "order",
+        "source_span",
+        "verbatim_comment",
+        "core_request",
+        "proposed_action",
+        "affected_artifacts",
+        "decision",
+        "implementation",
+        "response",
+        "location",
+        "status"
+      ],
+      "properties": {
+        "comment_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"},
+        "order": {"type": "integer", "minimum": 1},
+        "source_span": {"$ref": "#/$defs/span"},
+        "verbatim_comment": {"type": "string", "minLength": 1},
+        "core_request": {"type": "string", "minLength": 1},
+        "proposed_action": {"type": "string", "minLength": 1},
+        "affected_artifacts": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "decision": {"$ref": "#/$defs/decision"},
+        "implementation": {"$ref": "#/$defs/implementation"},
+        "response": {"type": "string"},
+        "location": {"$ref": "#/$defs/location"},
+        "status": {"enum": ["parsed", "awaiting_approval", "approved", "implemented", "verified", "closed"]}
+      }
+    },
+    "non_action_segment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["segment_id", "source_span", "verbatim_text", "reason"],
+      "properties": {
+        "segment_id": {"type": "string", "minLength": 1},
+        "source_span": {"$ref": "#/$defs/span"},
+        "verbatim_text": {"type": "string", "minLength": 1},
+        "reason": {"type": "string", "minLength": 1}
+      }
+    },
+    "reviewer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reviewer_id",
+        "sequence",
+        "source_name",
+        "source_text",
+        "source_sha256",
+        "comments",
+        "non_action_segments"
+      ],
+      "properties": {
+        "reviewer_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"},
+        "sequence": {"type": "integer", "minimum": 1},
+        "source_name": {"type": "string", "minLength": 1},
+        "source_text": {"type": "string", "minLength": 1},
+        "source_sha256": {"$ref": "#/$defs/sha256"},
+        "comments": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/comment"}},
+        "non_action_segments": {"type": "array", "items": {"$ref": "#/$defs/non_action_segment"}}
+      }
+    }
+  }
+}

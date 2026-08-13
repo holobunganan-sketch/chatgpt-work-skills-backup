@@ -1,0 +1,4 @@
+interface:
+  display_name: "医学论文工作流编排"
+  short_description: "医学论文写作、审稿返修、格式保护与投稿交付统一工作流路由"
+  default_prompt: "使用 $manuscript-workflow-orchestrator 识别项目阶段并执行合适的论文工作流。"

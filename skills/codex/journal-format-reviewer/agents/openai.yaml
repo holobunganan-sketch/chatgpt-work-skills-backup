@@ -1,0 +1,7 @@
+interface:
+  display_name: "Journal Format Reviewer"
+  short_description: "Strict manuscript format audit without direct rewriting"
+  default_prompt: "Use $journal-format-reviewer to audit this manuscript for journal-format compliance and report all issues without rewriting the manuscript."
+
+policy:
+  allow_implicit_invocation: true

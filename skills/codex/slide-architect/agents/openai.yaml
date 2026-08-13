@@ -1,0 +1,8 @@
+interface:
+  display_name: "幻灯片架构师"
+  short_description: "结构化论证 + 专业版式的幻灯片生成"
+  brand_color: "#D32F2F"
+  default_prompt: "Use $slide-architect to convert my brief into a slide outline, then produce slide-by-slide blueprints with a consistent style system."
+
+policy:
+  allow_implicit_invocation: true

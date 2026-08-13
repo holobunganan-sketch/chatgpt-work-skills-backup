@@ -1,0 +1,4 @@
+interface:
+  display_name: "项目上下文重建"
+  short_description: "读取本地项目目录并重建可核查的目标、进度、决策、风险与下一步"
+  default_prompt: "使用 $reconstruct-local-project-context 检查当前项目目录，并生成带证据定位的项目现状简报。"

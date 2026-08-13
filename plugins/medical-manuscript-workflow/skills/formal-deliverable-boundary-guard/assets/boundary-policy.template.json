@@ -1,0 +1,33 @@
+{
+  "policy_version": "2.0",
+  "delivery_roots": ["./delivery"],
+  "allow_globs": [
+    "**/*.docx", "**/*.pdf", "**/*.xlsx", "**/*.pptx",
+    "**/*.md", "**/*.txt", "**/*.rtf", "**/*.csv", "**/*.tsv",
+    "**/*.html", "**/*.htm", "**/*.json", "**/*.yaml", "**/*.yml",
+    "**/*.png", "**/*.jpg", "**/*.jpeg", "**/*.svg",
+    "**/*.mp3", "**/*.wav", "**/*.mp4", "**/*.zip"
+  ],
+  "deny_name_tokens": [
+    "internal", "draft", "backup", "temp", "notes", "handoff", "audit",
+    "delivery_index", "source_pack", "worklog", "qc_report",
+    "批注", "草稿", "备份", "临时", "笔记", "思考过程", "工作记录",
+    "过程文件", "内部报告", "审计报告", "核查报告", "交付说明", "提交说明",
+    "操作清单", "内部索引", "证据映射"
+  ],
+  "content_review_patterns": [
+    "TODO", "FIXME", "待确认", "待补充", "待完善", "待专家确认",
+    "内部讨论", "AI生成", "模型生成", "根据批注", "根据反馈",
+    "专家批注意见", "文件状态", "本稿", "本文件", "前九条",
+    "第十条规定", "表决前预评估", "正式发布前", "本轮修改",
+    "本次修改", "修改说明", "编辑说明", "已完成以下",
+    "证据边界", "证据仍有限", "目前证据有限", "尚不能说明",
+    "仍需更多研究", "仍待进一步验证"
+  ],
+  "allowed_exceptions": [],
+  "scan_docx_internals": true,
+  "scan_pptx_internals": true,
+  "scan_xlsx_internals": true,
+  "scan_pdf_internals": true,
+  "default_export_allowed": false
+}

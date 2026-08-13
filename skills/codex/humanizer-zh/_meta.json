@@ -1,0 +1,6 @@
+{
+  "name": "humanizer-zh",
+  "version": "2.0.0",
+  "description": "中文AI文本去痕Skill。去除文本中的AI生成痕迹，让内容听起来更自然、更像人类书写。",
+  "tags": ["writing", "editing", "ai-detection", "写作", "编辑"]
+}

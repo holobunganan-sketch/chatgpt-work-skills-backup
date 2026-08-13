@@ -1,0 +1,12 @@
+{
+  "reviewer_id": "R1",
+  "source_text": "The topic is clinically relevant. Please define the primary endpoint more clearly and state whether it was prespecified. The sensitivity analysis is useful; please report its sample size and explain the missing-data assumption.",
+  "expected_atomic_requests": [
+    "Please define the primary endpoint more clearly and state whether it was prespecified.",
+    "please report its sample size and explain the missing-data assumption."
+  ],
+  "expected_non_action_text": [
+    "The topic is clinically relevant. ",
+    "The sensitivity analysis is useful; "
+  ]
+}

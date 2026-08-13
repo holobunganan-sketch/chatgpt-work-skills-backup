@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.codex/medical-manuscript-workflow/delivery-policy.schema.json",
+  "title": "Submission package delivery policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "workflow_type",
+    "package_name",
+    "required_roles",
+    "allowed_extensions",
+    "prohibited_extensions",
+    "prohibited_name_patterns",
+    "registered_artifacts"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "workflow_type": {"enum": ["new_submission", "reviewer_revision"]},
+    "package_name": {"const": "Submission_Package"},
+    "required_roles": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "manuscript_clean",
+          "manuscript_highlighted",
+          "main_figure",
+          "main_table",
+          "supplementary_figure",
+          "supplementary_table",
+          "reviewer_response",
+          "submission_document"
+        ]
+      }
+    },
+    "allowed_extensions": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^\\.[a-z0-9]+$"}},
+    "prohibited_extensions": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^\\.[a-z0-9]+$"}},
+    "prohibited_name_patterns": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "registered_artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["role", "source", "relative_path", "sha256"],
+        "properties": {
+          "role": {"type": "string", "minLength": 1},
+          "source": {"type": "string", "minLength": 1},
+          "relative_path": {"type": "string", "minLength": 1, "pattern": "^(?![A-Za-z]:)(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.?[/\\\\]).+$"},
+          "sha256": {"type": "string", "pattern": "^[A-Fa-f0-9]{64}$"},
+          "reviewer_id": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  }
+}

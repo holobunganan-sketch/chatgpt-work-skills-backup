@@ -1,0 +1,4 @@
+interface:
+  display_name: "幻灯片外观与主线优化"
+  short_description: "优化任意领域幻灯片的页面外观、版式一致性、视觉层级与叙事主线"
+  default_prompt: "Use $presentation-visual-narrative-refiner to improve this deck's visual appearance, page composition, and narrative spine."

@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "workflow_type": "reviewer_revision",
+  "package_name": "Submission_Package",
+  "required_roles": [
+    "manuscript_clean",
+    "manuscript_highlighted",
+    "reviewer_response"
+  ],
+  "allowed_extensions": [".docx", ".png", ".tif", ".tiff", ".jpg", ".jpeg", ".pdf", ".xlsx"],
+  "prohibited_extensions": [".json", ".md", ".csv", ".log", ".py", ".ps1", ".xml", ".tmp", ".bak"],
+  "prohibited_name_patterns": [
+    "^\\.",
+    "~\\$",
+    "(?i)(audit|ledger|work[-_ ]?log|execution|process|draft|backup|temp|cache)"
+  ],
+  "registered_artifacts": []
+}

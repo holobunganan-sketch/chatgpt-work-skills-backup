@@ -1,0 +1,40 @@
+{
+  "protocol": "formal-revision-interchange",
+  "protocol_version": "1.0",
+  "template": true,
+  "gate_id": "GATE-001",
+  "ledger_id": "LEDGER-001",
+  "generated_at": null,
+  "decision_maker": {
+    "id": "",
+    "role": "",
+    "authority_scope": ""
+  },
+  "scope": {
+    "item_ids": [
+      "ITEM-001"
+    ],
+    "artifact_ids": [
+      "WORK-001"
+    ]
+  },
+  "preconditions": {
+    "source_lock_verified": false,
+    "analysis_complete": false,
+    "relations_reviewed": false,
+    "conditions_satisfied": false
+  },
+  "unresolved_conflicts": [],
+  "decision": {
+    "status": "pending",
+    "approved_item_ids": [],
+    "rejected_item_ids": [],
+    "deferred_item_ids": [],
+    "conditions": [],
+    "issued_by": "",
+    "issued_at": null,
+    "instruction": ""
+  },
+  "execution_allowed": false,
+  "attestation": ""
+}

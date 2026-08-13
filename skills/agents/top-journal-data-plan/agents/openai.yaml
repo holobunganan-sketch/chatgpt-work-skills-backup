@@ -1,0 +1,4 @@
+interface:
+  display_name: "Top Journal Data Plan"
+  short_description: "Design manuscript-grade data processing and analysis plans without running analysis."
+  default_prompt: "Turn my research question into a top-journal-level data processing and analysis plan covering data construction, bias audit, methods, validation, interpretation, and reporting. Do not run the actual analysis."

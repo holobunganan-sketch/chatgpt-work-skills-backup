@@ -1,0 +1,228 @@
+{
+  "deck": {
+    "title": "AI生成可编辑PPT的方法",
+    "audience": "通用",
+    "language": "zh-CN",
+    "delivery_mode": "hybrid"
+  },
+  "slides": [
+    {
+      "id": "cover",
+      "page_type": "cover",
+      "title": "AI生成可编辑PPT的方法",
+      "elements": [
+        {
+          "id": "cover_title",
+          "type": "text",
+          "x": 0.9,
+          "y": 1.75,
+          "w": 7.6,
+          "h": 1.3,
+          "text": "AI生成可编辑PPT的方法",
+          "font_size_pt": 34,
+          "bold": true,
+          "align": "left",
+          "valign": "middle"
+        },
+        {
+          "id": "cover_subtitle",
+          "type": "text",
+          "x": 0.92,
+          "y": 3.18,
+          "w": 6.8,
+          "h": 0.8,
+          "text": "结构化页面蓝图 × GPT Image视觉资产 × 原生PowerPoint对象",
+          "font_size_pt": 18,
+          "align": "left"
+        },
+        {
+          "id": "cover_visual",
+          "type": "shape",
+          "shape": "round_rect",
+          "x": 8.75,
+          "y": 1.35,
+          "w": 3.55,
+          "h": 4.5,
+          "fill": "#DCEAF7",
+          "line_color": "#2F6B9A",
+          "text": "视觉参考\n\n→\n\n原生重建",
+          "font_size_pt": 24,
+          "bold": true,
+          "align": "center",
+          "valign": "middle"
+        }
+      ]
+    },
+    {
+      "id": "workflow",
+      "page_type": "content",
+      "title": "可靠工作流以结构化页面蓝图为中心",
+      "key_message": "同一份页面蓝图同时驱动视觉生成与PPT原生构建。",
+      "logic_type": "process",
+      "elements": [
+        {
+          "id": "step1",
+          "type": "shape",
+          "shape": "round_rect",
+          "x": 0.75,
+          "y": 1.55,
+          "w": 2.75,
+          "h": 4.95,
+          "fill": "#DCEAF7",
+          "line_color": "#2F6B9A",
+          "text": "01\n结构化大纲\n\n关键结论\n逻辑类型\n元素坐标",
+          "font_size_pt": 18,
+          "bold": true,
+          "align": "center"
+        },
+        {
+          "id": "arrow1",
+          "type": "line",
+          "x": 3.52,
+          "y": 4.02,
+          "w": 0.35,
+          "h": 0,
+          "line_color": "#2F6B9A",
+          "line_width_pt": 2
+        },
+        {
+          "id": "step2",
+          "type": "shape",
+          "shape": "round_rect",
+          "x": 3.9,
+          "y": 1.55,
+          "w": 2.75,
+          "h": 4.95,
+          "fill": "#E2F1EC",
+          "line_color": "#4F8A7B",
+          "text": "02\nGPT Image\n\n构图参考\n独立插图\n透明素材",
+          "font_size_pt": 18,
+          "bold": true,
+          "align": "center"
+        },
+        {
+          "id": "arrow2",
+          "type": "line",
+          "x": 6.67,
+          "y": 4.02,
+          "w": 0.35,
+          "h": 0,
+          "line_color": "#4F8A7B",
+          "line_width_pt": 2
+        },
+        {
+          "id": "step3",
+          "type": "shape",
+          "shape": "round_rect",
+          "x": 7.05,
+          "y": 1.55,
+          "w": 2.75,
+          "h": 4.95,
+          "fill": "#F7EDCF",
+          "line_color": "#D29A42",
+          "text": "03\nPPT原生构建\n\n文字\n图形\n图表与表格",
+          "font_size_pt": 18,
+          "bold": true,
+          "align": "center"
+        },
+        {
+          "id": "arrow3",
+          "type": "line",
+          "x": 9.82,
+          "y": 4.02,
+          "w": 0.35,
+          "h": 0,
+          "line_color": "#D29A42",
+          "line_width_pt": 2
+        },
+        {
+          "id": "step4",
+          "type": "shape",
+          "shape": "round_rect",
+          "x": 10.2,
+          "y": 1.55,
+          "w": 2.35,
+          "h": 4.95,
+          "fill": "#F7E2E2",
+          "line_color": "#C65D5D",
+          "text": "04\n校验\n\n渲染\n修复",
+          "font_size_pt": 17,
+          "bold": true,
+          "align": "center"
+        }
+      ]
+    },
+    {
+      "id": "comparison",
+      "page_type": "content",
+      "title": "视觉还原与可编辑性需要分别管理",
+      "key_message": "复杂艺术资产可以保留为图片，逻辑与信息必须使用原生对象。",
+      "logic_type": "comparison",
+      "elements": [
+        {
+          "id": "left",
+          "type": "shape",
+          "shape": "round_rect",
+          "x": 0.8,
+          "y": 1.65,
+          "w": 5.75,
+          "h": 4.85,
+          "fill": "#DCEAF7",
+          "line_color": "#2F6B9A",
+          "text": "GPT Image负责\n\n• 场景与人物\n• 概念插图\n• 纹理与氛围\n• 复杂艺术构图",
+          "font_size_pt": 20,
+          "bold": true,
+          "align": "left",
+          "valign": "middle",
+          "margin_left_in": 0.35
+        },
+        {
+          "id": "right",
+          "type": "shape",
+          "shape": "round_rect",
+          "x": 6.78,
+          "y": 1.65,
+          "w": 5.75,
+          "h": 4.85,
+          "fill": "#E2F1EC",
+          "line_color": "#4F8A7B",
+          "text": "PowerPoint原生对象负责\n\n• 标题与正文\n• 流程与架构\n• 表格与图表\n• 数据、标签与引用",
+          "font_size_pt": 20,
+          "bold": true,
+          "align": "left",
+          "valign": "middle",
+          "margin_left_in": 0.35
+        }
+      ]
+    },
+    {
+      "id": "closing",
+      "page_type": "closing",
+      "title": "结束",
+      "elements": [
+        {
+          "id": "closing_text",
+          "type": "text",
+          "x": 1.2,
+          "y": 2.1,
+          "w": 10.9,
+          "h": 1.3,
+          "text": "视觉由图像增强，结构由原生对象承载",
+          "font_size_pt": 30,
+          "bold": true,
+          "align": "center"
+        },
+        {
+          "id": "closing_line",
+          "type": "line",
+          "x": 4.4,
+          "y": 4.0,
+          "w": 4.55,
+          "h": 0,
+          "line_color": "#2F6B9A",
+          "line_width_pt": 2.5
+        }
+      ]
+    }
+  ]
+}

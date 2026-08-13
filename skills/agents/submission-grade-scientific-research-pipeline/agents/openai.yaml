@@ -1,0 +1,4 @@
+interface:
+  display_name: "Submission-Grade Scientific Research"
+  short_description: "Scientific manuscript production pipeline"
+  default_prompt: "Use $submission-grade-scientific-research-pipeline to turn my Chinese or English scientific research idea into a traceable submission package with Chinese or English outputs."

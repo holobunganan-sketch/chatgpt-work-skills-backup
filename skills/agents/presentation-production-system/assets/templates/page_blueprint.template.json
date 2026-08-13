@@ -1,0 +1,70 @@
+{
+  "page_id": "S01",
+  "deck_position": "opening / argument cluster",
+  "page_role": "mechanism explanation",
+  "narrative_function": "",
+  "page_type": "multi-stage-path-page",
+  "visual_center": "",
+  "graphic_priority": "high",
+  "svg_needed": true,
+  "svg_module_candidate": "pathway-chain",
+  "text_density": "low",
+  "ppt_native_blocks": [
+    "title",
+    "subtitle",
+    "short explanation",
+    "takeaway",
+    "references"
+  ],
+  "chart_or_diagram_goal": "",
+  "key_message": "",
+  "what_must_be_seen_first": "",
+  "what_should_remain_outside_svg": [
+    "title",
+    "long explanation",
+    "references",
+    "takeaway box"
+  ],
+  "generic_consulting_layout_forbidden": true,
+  "reuse_candidate_module": "pathway-chain",
+  "information_loss_if_text_only": "",
+  "render_strategy": "hybrid",
+  "graphic_complexity": "medium",
+  "text_graphic_ratio": "40:60",
+  "title_zone": {
+    "title": "",
+    "subtitle": "",
+    "tone": "professional"
+  },
+  "main_visual_zone": {
+    "purpose": "",
+    "content_blocks": [],
+    "svg_scope": [],
+    "native_ppt_scope": [
+      "title",
+      "supporting explanation",
+      "takeaway",
+      "references"
+    ]
+  },
+  "explanation_zone": {
+    "format": "short bullets",
+    "content": []
+  },
+  "conclusion_zone": {
+    "format": "takeaway box",
+    "content": ""
+  },
+  "reference_zone": {
+    "format": "none",
+    "content": []
+  },
+  "style_keywords": [
+    "graphic-led",
+    "structured",
+    "clean",
+    "restrained"
+  ],
+  "avoid_list": [],
+  "open_questions": []
+}

@@ -1,0 +1,6 @@
+interface:
+  display_name: "论文投稿交付态"
+  short_description: "逐句审读投稿适格性，完成论文、图表、动态引文与投稿文件包交付"
+  default_prompt: "使用 $format-manuscript-delivery 将这份文稿逐句审读并整理为可以直接投稿的完整交付包。"
+policy:
+  allow_implicit_invocation: true

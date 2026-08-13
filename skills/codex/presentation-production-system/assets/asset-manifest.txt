@@ -1,0 +1,4 @@
+Asset manifest for presentation-production-system.
+
+Use assets/templates/page_blueprint.template.json as the v2 hard-gate blueprint starter.
+Use assets/templates/deck_brief.template.md when the user needs a clean intake brief before slide planning.

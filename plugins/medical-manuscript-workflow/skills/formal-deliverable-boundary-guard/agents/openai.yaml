@@ -1,0 +1,4 @@
+interface:
+  display_name: "全任务交付态"
+  short_description: "调用即交付，逐句清除不适合正式成稿与对外使用的全部内容"
+  default_prompt: "使用 $formal-deliverable-boundary-guard 直接形成可用成品，并逐句判断每句话是否适合当前交付场景。"

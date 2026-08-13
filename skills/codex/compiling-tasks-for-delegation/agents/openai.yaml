@@ -1,0 +1,4 @@
+interface:
+  display_name: "Task Delegation Compiler"
+  short_description: "Compile work into deterministic executor packs, including Codex Spark chunks"
+  default_prompt: "Use $compiling-tasks-for-delegation to compile this task into a deterministic execution package. If GPT-5.3-Codex-Spark is explicitly targeted, use the Spark chunked execution profile."

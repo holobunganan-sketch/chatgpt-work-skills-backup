@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "document_mainline": {
+    "core_question": "Write the central question.",
+    "target_answer": "Write the answer the document must establish.",
+    "nodes": [
+      {
+        "id": "M1",
+        "judgment": "Write the first necessary judgment.",
+        "next_node": "M2"
+      },
+      {
+        "id": "M2",
+        "judgment": "Write the next necessary judgment.",
+        "next_node": null
+      }
+    ]
+  },
+  "sources": [
+    {
+      "source_id": "S1",
+      "citation": "Author, year, title or citation key",
+      "reading_status": "full_text",
+      "passages": [
+        {
+          "locator": "Page, section, paragraph, table or figure",
+          "supported_proposition": "Exact proposition supported by this location"
+        }
+      ],
+      "uses": [
+        {
+          "decision": "include",
+          "mainline_node": "M1",
+          "section": "Planned section",
+          "evidence_task": "establish_fact",
+          "minimum_usable_proposition": "The smallest proposition that advances M1",
+          "upstream_anchor": "Specific judgment already established before the citation",
+          "missing_relation": "Specific information or relation still needed",
+          "downstream_advance": "Distinct judgment enabled after the citation",
+          "citation_entry_point": "Sentence or paragraph function where the source enters",
+          "continuity": {
+            "subject": "continuous",
+            "terminology": "continuous",
+            "tone": "continuous",
+            "abstraction_level": "continuous",
+            "sentence_function": "continuous"
+          },
+          "adaptation_instruction": ""
+        }
+      ]
+    }
+  ]
+}

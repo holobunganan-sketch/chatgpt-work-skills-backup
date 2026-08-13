@@ -1,0 +1,4 @@
+interface:
+  display_name: "可追溯发布审计"
+  short_description: "核验反馈、决策、实际修改、正式回应与最终文件之间的完整证据链"
+  default_prompt: "使用 $traceable-release-auditor 对这批修订产物进行独立发布前核查。"

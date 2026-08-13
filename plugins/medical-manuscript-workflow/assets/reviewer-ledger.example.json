@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.0",
+  "project_id": "MMW-DEMO-001",
+  "manuscript_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "reviewers": [
+    {
+      "reviewer_id": "R1",
+      "sequence": 1,
+      "source_name": "Reviewer 1",
+      "source_text": "Please clarify the endpoint.",
+      "source_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "comments": [
+        {
+          "comment_id": "R1-C1",
+          "order": 1,
+          "source_span": {"start": 0, "end": 28},
+          "verbatim_comment": "Please clarify the endpoint.",
+          "core_request": "Clarify the primary endpoint.",
+          "proposed_action": "Add the prespecified endpoint definition to Methods.",
+          "affected_artifacts": ["Manuscript_Clean.docx", "Manuscript_Highlighted.docx"],
+          "decision": {
+            "state": "approved",
+            "decided_at": "2026-08-06T09:00:00+08:00",
+            "conditions": [],
+            "conditions_met": true,
+            "rationale": "The clarification is supported by the protocol."
+          },
+          "implementation": {
+            "status": "verified",
+            "evidence": [
+              {
+                "artifact": "Manuscript_Clean.docx",
+                "before": "The primary endpoint was assessed at Week 12.",
+                "after": "The prespecified primary endpoint was assessed at Week 12.",
+                "anchor": "Methods > Outcomes",
+                "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+              }
+            ]
+          },
+          "response": "We clarified that the endpoint was prespecified in the Methods section.",
+          "location": {
+            "status": "verified",
+            "entries": [
+              {
+                "artifact": "Manuscript_Clean.docx",
+                "section": "Methods > Outcomes",
+                "page": 6,
+                "paragraph": 2,
+                "anchor": "The prespecified primary endpoint"
+              }
+            ]
+          },
+          "status": "closed"
+        }
+      ],
+      "non_action_segments": []
+    }
+  ]
+}

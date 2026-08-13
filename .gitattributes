@@ -1,0 +1,14 @@
+# Preserve exact package bytes so SHA256SUMS remains valid after cloning.
+# Source skills keep their original whitespace as a migration snapshot.
+* -text -whitespace
+
+# Keep useful text diffs without enabling line-ending conversion.
+*.md diff
+*.txt diff
+*.json diff
+*.toml diff
+*.yaml diff
+*.yml diff
+*.py diff
+*.ps1 diff
+*.sh diff

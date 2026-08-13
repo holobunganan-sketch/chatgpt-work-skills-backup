@@ -1,0 +1,150 @@
+{
+  "profile_name": "论文规范排版与洁净交付默认规范",
+  "document": {
+    "format": "docx",
+    "text_color": "000000",
+    "chinese_font": "宋体",
+    "latin_font": "Times New Roman",
+    "body_font_size_pt": 12,
+    "line_spacing_multiple": 1.5,
+    "page_margin_policy": "explicit_default_unless_user_or_journal_override",
+    "page_margins_cm": {
+      "top": 2.54,
+      "bottom": 2.54,
+      "left": 3.18,
+      "right": 3.18
+    },
+    "page_margin_tolerance_cm": 0.01,
+    "independent_title_page": false,
+    "subheadings_bold": true,
+    "max_consecutive_list_paragraphs_before_review": 4
+  },
+  "structure": {
+    "enabled": true,
+    "activation": "default_when_no_explicit_user_or_journal_structure",
+    "format": "IMRAD_with_Conclusion",
+    "required_major_sections": [
+      "Introduction",
+      "Methods",
+      "Results",
+      "Discussion",
+      "Conclusion"
+    ],
+    "heading_aliases": {
+      "Introduction": [
+        "Introduction",
+        "引言"
+      ],
+      "Methods": [
+        "Methods",
+        "Materials and Methods",
+        "Patients and Methods",
+        "方法",
+        "材料与方法",
+        "患者与方法"
+      ],
+      "Results": [
+        "Results",
+        "结果"
+      ],
+      "Discussion": [
+        "Discussion",
+        "讨论"
+      ],
+      "Conclusion": [
+        "Conclusion",
+        "Conclusions",
+        "结论"
+      ]
+    },
+    "introduction": {
+      "paragraphs": 3,
+      "subheadings_allowed": false
+    },
+    "methods": {
+      "subheadings_allowed": true,
+      "paragraphs_per_subheading": 1,
+      "content_boundary": "planned_methods_and_purpose_only",
+      "forbid_post_execution_results": true,
+      "allow_planned_or_calculated_target_sample_size": true
+    },
+    "results": {
+      "subheadings_allowed": true,
+      "paragraphs_per_subheading": 1,
+      "content_boundary": "observed_results_only",
+      "forbid_interpretation": true
+    },
+    "discussion": {
+      "minimum_paragraphs": 5,
+      "maximum_paragraphs": 7,
+      "subheadings_allowed": false,
+      "first_paragraph_role": "whole_study_overview",
+      "final_paragraph_role": "limitations",
+      "minimum_limitations": 1,
+      "maximum_limitations": 3
+    },
+    "conclusion": {
+      "paragraphs": 1,
+      "orientation": [
+        "macro",
+        "forward_looking"
+      ],
+      "forbid_results_or_discussion_repetition": true
+    },
+    "override_policy": "explicit_user_requirements_take_precedence"
+  },
+  "tables": {
+    "style": "academic_three_line",
+    "text_color": "000000",
+    "title_position": "above",
+    "title_alignment": "center",
+    "significant_row_bolding": "auto_when_p_column_unambiguous_else_review",
+    "p_value_threshold": 0.05
+  },
+  "figures": {
+    "title_position": "below",
+    "title_alignment": "center",
+    "text_language": "English",
+    "palette": "academic",
+    "canvas_title": false,
+    "file_format": "PNG",
+    "minimum_dpi": 300,
+    "wide_margins": true,
+    "one_asset_per_file": true
+  },
+  "numbering": {
+    "order": "first_appearance_in_manuscript",
+    "include_supplementary_assets": true,
+    "require_in_text_callout": true
+  },
+  "citations": {
+    "reference_manager": "Zotero",
+    "dynamic_fields_required_at_final_stage": true,
+    "maximum_references_per_citation": 4,
+    "preserve_field_payload_exactly": true
+  },
+  "delivery": {
+    "allowed_roles": [
+      "manuscript",
+      "figure",
+      "table",
+      "supplementary_figure",
+      "supplementary_table",
+      "supplementary_material",
+      "submission_checklist"
+    ],
+    "block_comments": true,
+    "block_tracked_changes": true,
+    "block_hidden_text": true,
+    "block_process_content": true,
+    "block_unregistered_files": true,
+    "reports_outside_delivery_directory": true
+  },
+  "semantic_manual_review": {
+    "sentence_level_submission_suitability": true,
+    "section_and_position_fit": true,
+    "alignment_with_user_specified_thesis": true,
+    "remove_editorial_process_language": true,
+    "review_defensive_caveats_and_nonfunctional_evidence_boundary_language": true
+  }
+}

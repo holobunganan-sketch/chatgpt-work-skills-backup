@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "project_id": "MMW-DEMO-001",
+  "task_type": "reviewer_revision",
+  "article_type": "Original Research",
+  "research_question": "Does the intervention improve the prespecified primary endpoint?",
+  "target_journal": "Example Medical Journal",
+  "format_source": "default",
+  "source_root": "Project/Source",
+  "internal_root": "Project/Internal_Workspace",
+  "delivery_root": "Project/Submission_Package",
+  "authoritative_manuscript": {
+    "path": "Project/Source/Manuscript.docx",
+    "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "reviewer_sources": [
+    {
+      "path": "Project/Source/Reviewer_1.docx",
+      "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    }
+  ],
+  "zotero_status": "existing",
+  "protected_elements": ["zotero_fields", "bookmarks", "drawings"],
+  "authorized_reads": ["Project/Source"],
+  "authorized_writes": ["Project/Internal_Workspace", "Project/Submission_Package"],
+  "formal_allowlist": [
+    "Manuscript_Clean.docx",
+    "Manuscript_Highlighted.docx",
+    "Response_to_Reviewers/Response_to_Reviewer_1.docx"
+  ],
+  "blockers": []
+}

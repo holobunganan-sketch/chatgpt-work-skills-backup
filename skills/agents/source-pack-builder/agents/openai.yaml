@@ -1,0 +1,6 @@
+interface:
+  display_name: "Source Pack Builder"
+  short_description: "Build source packs with closely read, argument-aligned evidence"
+  default_prompt: "Use $source-pack-builder to assess readiness, align closely read evidence to the mainline, and build a clean source pack before drafting."
+policy:
+  allow_implicit_invocation: true

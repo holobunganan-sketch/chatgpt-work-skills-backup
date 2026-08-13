@@ -1,0 +1,4 @@
+interface:
+  display_name: "主线驱动正式写作"
+  short_description: "按全文主线整合证据，并完整保留已有外部引文管理器对象"
+  default_prompt: "使用 $argument-centered-formal-editor 重塑这份正式文本，使证据沿主线推进，并完整保留已有 citation key 和动态引文。"

@@ -1,0 +1,9 @@
+# Only specify properties explicitly requested by the user.
+# Explicit user values override template-derived values and defaults.
+palette:
+  primary: "#2767D8"
+  primary_light: "#E4ECFF"
+typography:
+  font_family: "Microsoft YaHei"
+slide:
+  background_color: "#FFFFFF"

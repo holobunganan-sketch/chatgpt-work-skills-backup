@@ -1,0 +1,4 @@
+interface:
+  display_name: "伦理材料Word交付"
+  short_description: "依据本地材料完成伦理文档填写、命名、整理与一致性核验"
+  default_prompt: "使用 $ethics-materials-docx-delivery 完成并核验当前目录中的伦理材料包。"
