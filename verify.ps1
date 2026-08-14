@@ -79,7 +79,11 @@ if (Test-Path -LiteralPath $hashPath) {
                 Add-CheckError "Missing hashed file: $relativePath"
             }
             else {
-                $actual = (Get-FileHash -Algorithm SHA256 -LiteralPath $filePath).Hash
+                $actual = [Convert]::ToHexString(
+                    [Security.Cryptography.SHA256]::HashData(
+                        [IO.File]::ReadAllBytes($filePath)
+                    )
+                )
                 if ($actual -ne $expected) {
                     Add-CheckError "Hash mismatch: $relativePath"
                 }
