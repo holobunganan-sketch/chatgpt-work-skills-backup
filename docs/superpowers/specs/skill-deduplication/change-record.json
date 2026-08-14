@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0",
+  "change_id": "CHG-20260814-SKILL-DEDUP",
+  "created_at": "2026-08-14T00:00:00+08:00",
+  "request_summary": "删除内容完全相同的 skill 目录副本，并保持恢复后的安装布局和插件功能不变。",
+  "request_source": {
+    "type": "user",
+    "reference": "当前会话",
+    "verbatim": "做一下去重"
+  },
+  "decision": {
+    "status": "authorized",
+    "authority": "repository owner",
+    "decided_at": "2026-08-14T00:00:00+08:00",
+    "rationale": "用户采纳此前提出的 standalone 单一源码、安装时恢复多目标目录、插件内嵌副本保留方案。"
+  },
+  "authorized_scope": {
+    "artifact_ids": ["baseline-skill-sources", "plugin-skill-sources", "restore-map", "installer", "verifier", "inventory", "documentation", "hash-manifest"],
+    "dimensions": ["identifier", "version", "structure"],
+    "allow_transitive": true
+  },
+  "canonical_updates": [
+    {
+      "item_key": "skill.restore-target-counts",
+      "dimension": "structure",
+      "before": "74 physical skill directories; codex=36;agents=26;plugin=12",
+      "after": "48 physical skill directories; restored codex=36;agents=26;plugin=12",
+      "reason": "移除内容完全相同的物理副本，保留恢复目标集合。",
+      "status": "authorized"
+    }
+  ],
+  "direct_artifact_changes": [
+    {"artifact_id": "baseline-skill-sources", "locator": "skills/codex and skills/agents", "action": "remove_exact_duplicate_directories", "dimensions": ["identifier", "version", "structure"], "status": "authorized"},
+    {"artifact_id": "restore-map", "locator": "restore-map.json", "action": "create_mapping", "dimensions": ["identifier", "version", "structure"], "status": "authorized"},
+    {"artifact_id": "installer", "locator": "install workflow", "action": "apply_mapping", "dimensions": ["identifier", "version", "structure"], "status": "authorized"},
+    {"artifact_id": "verifier", "locator": "mapping validation", "action": "add_checks", "dimensions": ["identifier", "version", "structure"], "status": "authorized"},
+    {"artifact_id": "inventory", "locator": "skills metadata", "action": "separate_sources_and_targets", "dimensions": ["identifier", "version", "structure"], "status": "authorized"},
+    {"artifact_id": "documentation", "locator": "README and BACKUP_SCOPE", "action": "document_deduplicated_layout", "dimensions": ["identifier", "version", "structure"], "status": "authorized"},
+    {"artifact_id": "hash-manifest", "locator": "SHA256SUMS.txt", "action": "regenerate", "dimensions": ["version", "structure"], "status": "authorized"}
+  ],
+  "actual_changes": [],
+  "validation": [
+    {"check_id": "CHECK-001", "scope": "deduplicated-package", "method": "tree_hash_and_restore_simulation", "status": "pending", "evidence": ""},
+    {"check_id": "CHECK-002", "scope": "remote-private-repository", "method": "github_metadata_and_tree_compare", "status": "pending", "evidence": ""}
+  ],
+  "out_of_scope_impacts": [],
+  "extensions": {"baseline_commit": "2a065f2c44574a0b7dbc55b60562d4549116f37f"}
+}

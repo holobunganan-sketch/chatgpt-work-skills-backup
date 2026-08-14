@@ -1,0 +1,137 @@
+{
+  "schema_version": "1.0",
+  "registry_id": "REG-20260814-SKILL-DEDUP",
+  "project_id": "chatgpt-work-skills-backup",
+  "created_at": "2026-08-14T00:00:00+08:00",
+  "artifacts": [
+    {
+      "artifact_id": "baseline-skill-sources",
+      "path": "skills",
+      "role": "authoritative",
+      "tags": ["source", "skills"],
+      "format": "directory",
+      "version": "2a065f2",
+      "status": "source_locked",
+      "derived_from": [],
+      "content_dimensions": ["identifier", "version", "structure"],
+      "fingerprint": {"algorithm": "git-commit", "value": "2a065f2c44574a0b7dbc55b60562d4549116f37f"}
+    },
+    {
+      "artifact_id": "plugin-skill-sources",
+      "path": "plugins/medical-manuscript-workflow/skills",
+      "role": "authoritative",
+      "tags": ["source", "plugin"],
+      "format": "directory",
+      "version": "0.1.0+codex.20260806083632",
+      "status": "source_locked",
+      "derived_from": [],
+      "content_dimensions": ["identifier", "version", "structure"],
+      "fingerprint": {"algorithm": "git-commit", "value": "2a065f2c44574a0b7dbc55b60562d4549116f37f"}
+    },
+    {
+      "artifact_id": "restore-map",
+      "path": "restore-map.json",
+      "role": "authoritative",
+      "tags": ["mapping", "planned"],
+      "format": "json",
+      "version": "1.0",
+      "status": "sync_pending",
+      "derived_from": [],
+      "content_dimensions": ["identifier", "version", "structure"],
+      "fingerprint": {"algorithm": "sha256", "value": ""}
+    },
+    {
+      "artifact_id": "installer",
+      "path": "install.ps1",
+      "role": "derived",
+      "tags": ["restore", "deliverable"],
+      "format": "powershell",
+      "version": "1.0",
+      "status": "sync_pending",
+      "derived_from": ["restore-map"],
+      "content_dimensions": ["identifier", "version", "structure"],
+      "fingerprint": {"algorithm": "sha256", "value": ""}
+    },
+    {
+      "artifact_id": "verifier",
+      "path": "verify.ps1",
+      "role": "derived",
+      "tags": ["verification", "deliverable"],
+      "format": "powershell",
+      "version": "1.0",
+      "status": "sync_pending",
+      "derived_from": ["restore-map"],
+      "content_dimensions": ["identifier", "version", "structure"],
+      "fingerprint": {"algorithm": "sha256", "value": ""}
+    },
+    {
+      "artifact_id": "inventory",
+      "path": "inventory.json",
+      "role": "derived",
+      "tags": ["manifest", "deliverable"],
+      "format": "json",
+      "version": "1.0",
+      "status": "sync_pending",
+      "derived_from": ["restore-map"],
+      "content_dimensions": ["identifier", "version", "structure"],
+      "fingerprint": {"algorithm": "sha256", "value": ""}
+    },
+    {
+      "artifact_id": "documentation",
+      "path": "README.md",
+      "role": "derived",
+      "tags": ["documentation", "deliverable"],
+      "format": "markdown",
+      "version": "1.0",
+      "status": "sync_pending",
+      "derived_from": ["restore-map"],
+      "content_dimensions": ["identifier", "version", "structure"],
+      "fingerprint": {"algorithm": "sha256", "value": ""}
+    },
+    {
+      "artifact_id": "hash-manifest",
+      "path": "SHA256SUMS.txt",
+      "role": "derived",
+      "tags": ["integrity", "deliverable"],
+      "format": "text",
+      "version": "1.0",
+      "status": "sync_pending",
+      "derived_from": ["restore-map", "installer", "verifier", "inventory", "documentation"],
+      "content_dimensions": ["version", "structure"],
+      "fingerprint": {"algorithm": "sha256", "value": "self-excluded"}
+    }
+  ],
+  "canonical_items": [
+    {
+      "key": "skill.restore-target-counts",
+      "dimension": "structure",
+      "value": "74 physical skill directories; codex=36;agents=26;plugin=12",
+      "semantics": "去重改变仓库物理源码数量，恢复后的目标数量保持固定。",
+      "source_artifact_id": "restore-map",
+      "source_locator": "restore-map.json and physical source directories",
+      "aliases": [],
+      "occurrences": [
+        {"artifact_id": "restore-map", "locator": "entries and physical target union", "context": "规范恢复目标集合", "required": true},
+        {"artifact_id": "installer", "locator": "restore workflow", "context": "生成目标目录", "required": true},
+        {"artifact_id": "verifier", "locator": "target validation", "context": "核验目标数量", "required": true},
+        {"artifact_id": "inventory", "locator": "skills.restoreTargets", "context": "记录恢复目标", "required": true},
+        {"artifact_id": "documentation", "locator": "包含内容和恢复说明", "context": "用户说明", "required": true}
+      ]
+    }
+  ],
+  "propagation_rules": [
+    {"rule_id": "PROP-003", "from_artifact_id": "restore-map", "to_artifact_id": "installer", "dimensions": ["identifier", "version", "structure"], "mode": "must_sync", "required": true},
+    {"rule_id": "PROP-004", "from_artifact_id": "restore-map", "to_artifact_id": "verifier", "dimensions": ["identifier", "version", "structure"], "mode": "must_sync", "required": true},
+    {"rule_id": "PROP-005", "from_artifact_id": "restore-map", "to_artifact_id": "inventory", "dimensions": ["identifier", "version", "structure"], "mode": "generated_from", "required": true},
+    {"rule_id": "PROP-006", "from_artifact_id": "restore-map", "to_artifact_id": "documentation", "dimensions": ["identifier", "version", "structure"], "mode": "must_sync", "required": true},
+    {"rule_id": "PROP-007", "from_artifact_id": "restore-map", "to_artifact_id": "hash-manifest", "dimensions": ["version", "structure"], "mode": "generated_from", "required": true}
+  ],
+  "release_sets": [
+    {
+      "release_set_id": "RELEASE-SKILL-BACKUP",
+      "member_artifact_ids": ["restore-map", "installer", "verifier", "inventory", "documentation", "hash-manifest"],
+      "content_equivalence_groups": []
+    }
+  ],
+  "extensions": {"design_status": "approved_in_conversation_pending_written_review"}
+}

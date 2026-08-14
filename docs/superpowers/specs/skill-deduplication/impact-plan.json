@@ -1,0 +1,533 @@
+{
+  "plan_version": "1.0",
+  "generated_at": "2026-08-14T01:53:15.629790+00:00",
+  "registry_id": "REG-20260814-SKILL-DEDUP",
+  "change_id": "CHG-20260814-SKILL-DEDUP",
+  "authorization": {
+    "decision_status": "authorized",
+    "artifact_ids": [
+      "baseline-skill-sources",
+      "documentation",
+      "hash-manifest",
+      "installer",
+      "inventory",
+      "plugin-skill-sources",
+      "restore-map",
+      "verifier"
+    ],
+    "dimensions": [
+      "identifier",
+      "structure",
+      "version"
+    ],
+    "allow_transitive": true,
+    "note": "影响识别不授予写权限；任务状态按显式授权范围计算。"
+  },
+  "summary": {
+    "task_count": 20,
+    "status_counts": {
+      "planned": 20
+    },
+    "release_blocked": true
+  },
+  "tasks": [
+    {
+      "task_id": "baseline-skill-sources:identifier",
+      "artifact_id": "baseline-skill-sources",
+      "artifact_path": "skills",
+      "dimension": "identifier",
+      "actions": [
+        "remove_exact_duplicate_directories"
+      ],
+      "reasons": [
+        "变更记录中的直接产物动作"
+      ],
+      "canonical_item_keys": [],
+      "locators": [
+        "skills/codex and skills/agents"
+      ],
+      "minimum_depth": 0,
+      "has_direct_basis": true,
+      "status": "planned",
+      "actual_change_evidence": []
+    },
+    {
+      "task_id": "baseline-skill-sources:structure",
+      "artifact_id": "baseline-skill-sources",
+      "artifact_path": "skills",
+      "dimension": "structure",
+      "actions": [
+        "remove_exact_duplicate_directories"
+      ],
+      "reasons": [
+        "变更记录中的直接产物动作"
+      ],
+      "canonical_item_keys": [],
+      "locators": [
+        "skills/codex and skills/agents"
+      ],
+      "minimum_depth": 0,
+      "has_direct_basis": true,
+      "status": "planned",
+      "actual_change_evidence": []
+    },
+    {
+      "task_id": "baseline-skill-sources:version",
+      "artifact_id": "baseline-skill-sources",
+      "artifact_path": "skills",
+      "dimension": "version",
+      "actions": [
+        "remove_exact_duplicate_directories"
+      ],
+      "reasons": [
+        "变更记录中的直接产物动作"
+      ],
+      "canonical_item_keys": [],
+      "locators": [
+        "skills/codex and skills/agents"
+      ],
+      "minimum_depth": 0,
+      "has_direct_basis": true,
+      "status": "planned",
+      "actual_change_evidence": []
+    },
+    {
+      "task_id": "documentation:identifier",
+      "artifact_id": "documentation",
+      "artifact_path": "README.md",
+      "dimension": "identifier",
+      "actions": [
+        "document_deduplicated_layout",
+        "regenerate_or_synchronize",
+        "synchronize_canonical_content"
+      ],
+      "reasons": [
+        "变更记录中的直接产物动作",
+        "沿规则 PROP-006 从 restore-map 传导",
+        "沿规则 derived:restore-map->documentation 从 restore-map 传导"
+      ],
+      "canonical_item_keys": [],
+      "locators": [
+        "README and BACKUP_SCOPE"
+      ],
+      "minimum_depth": 0,
+      "has_direct_basis": true,
+      "status": "planned",
+      "actual_change_evidence": []
+    },
+    {
+      "task_id": "documentation:structure",
+      "artifact_id": "documentation",
+      "artifact_path": "README.md",
+      "dimension": "structure",
+      "actions": [
+        "document_deduplicated_layout",
+        "regenerate_or_synchronize",
+        "synchronize_canonical_content",
+        "verify_and_update_occurrence"
+      ],
+      "reasons": [
+        "变更记录中的直接产物动作",
+        "沿规则 PROP-006 从 restore-map 传导",
+        "沿规则 derived:restore-map->documentation 从 restore-map 传导",
+        "规范项 skill.restore-target-counts 的已登记出现位置"
+      ],
+      "canonical_item_keys": [
+        "skill.restore-target-counts"
+      ],
+      "locators": [
+        "README and BACKUP_SCOPE",
+        "包含内容和恢复说明"
+      ],
+      "minimum_depth": 0,
+      "has_direct_basis": true,
+      "status": "planned",
+      "actual_change_evidence": []
+    },
+    {
+      "task_id": "documentation:version",
+      "artifact_id": "documentation",
+      "artifact_path": "README.md",
+      "dimension": "version",
+      "actions": [
+        "document_deduplicated_layout",
+        "regenerate_or_synchronize",
+        "synchronize_canonical_content"
+      ],
+      "reasons": [
+        "变更记录中的直接产物动作",
+        "沿规则 PROP-006 从 restore-map 传导",
+        "沿规则 derived:restore-map->documentation 从 restore-map 传导"
+      ],
+      "canonical_item_keys": [],
+      "locators": [
+        "README and BACKUP_SCOPE"
+      ],
+      "minimum_depth": 0,
+      "has_direct_basis": true,
+      "status": "planned",
+      "actual_change_evidence": []
+    },
+    {
+      "task_id": "hash-manifest:structure",
+      "artifact_id": "hash-manifest",
+      "artifact_path": "SHA256SUMS.txt",
+      "dimension": "structure",
+      "actions": [
+        "regenerate",
+        "regenerate_from_source",
+        "regenerate_or_synchronize"
+      ],
+      "reasons": [
+        "变更记录中的直接产物动作",
+        "沿规则 PROP-007 从 restore-map 传导",
+        "沿规则 derived:documentation->hash-manifest 从 documentation 传导",
+        "沿规则 derived:installer->hash-manifest 从 installer 传导",
+        "沿规则 derived:inventory->hash-manifest 从 inventory 传导",
+        "沿规则 derived:restore-map->hash-manifest 从 restore-map 传导",
+        "沿规则 derived:verifier->hash-manifest 从 verifier 传导"
+      ],
+      "canonical_item_keys": [
+        "skill.restore-target-counts"
+      ],
+      "locators": [
+        "SHA256SUMS.txt"
+      ],
+      "minimum_depth": 0,
+      "has_direct_basis": true,
+      "status": "planned",
+      "actual_change_evidence": []
+    },
+    {
+      "task_id": "hash-manifest:version",
+      "artifact_id": "hash-manifest",
+      "artifact_path": "SHA256SUMS.txt",
+      "dimension": "version",
+      "actions": [
+        "regenerate",
+        "regenerate_from_source",
+        "regenerate_or_synchronize"
+      ],
+      "reasons": [
+        "变更记录中的直接产物动作",
+        "沿规则 PROP-007 从 restore-map 传导",
+        "沿规则 derived:documentation->hash-manifest 从 documentation 传导",
+        "沿规则 derived:installer->hash-manifest 从 installer 传导",
+        "沿规则 derived:inventory->hash-manifest 从 inventory 传导",
+        "沿规则 derived:restore-map->hash-manifest 从 restore-map 传导",
+        "沿规则 derived:verifier->hash-manifest 从 verifier 传导"
+      ],
+      "canonical_item_keys": [],
+      "locators": [
+        "SHA256SUMS.txt"
+      ],
+      "minimum_depth": 0,
+      "has_direct_basis": true,
+      "status": "planned",
+      "actual_change_evidence": []
+    },
+    {
+      "task_id": "installer:identifier",
+      "artifact_id": "installer",
+      "artifact_path": "install.ps1",
+      "dimension": "identifier",
+      "actions": [
+        "apply_mapping",
+        "regenerate_or_synchronize",
+        "synchronize_canonical_content"
+      ],
+      "reasons": [
+        "变更记录中的直接产物动作",
+        "沿规则 PROP-003 从 restore-map 传导",
+        "沿规则 derived:restore-map->installer 从 restore-map 传导"
+      ],
+      "canonical_item_keys": [],
+      "locators": [
+        "install workflow"
+      ],
+      "minimum_depth": 0,
+      "has_direct_basis": true,
+      "status": "planned",
+      "actual_change_evidence": []
+    },
+    {
+      "task_id": "installer:structure",
+      "artifact_id": "installer",
+      "artifact_path": "install.ps1",
+      "dimension": "structure",
+      "actions": [
+        "apply_mapping",
+        "regenerate_or_synchronize",
+        "synchronize_canonical_content",
+        "verify_and_update_occurrence"
+      ],
+      "reasons": [
+        "变更记录中的直接产物动作",
+        "沿规则 PROP-003 从 restore-map 传导",
+        "沿规则 derived:restore-map->installer 从 restore-map 传导",
+        "规范项 skill.restore-target-counts 的已登记出现位置"
+      ],
+      "canonical_item_keys": [
+        "skill.restore-target-counts"
+      ],
+      "locators": [
+        "install workflow",
+        "restore workflow"
+      ],
+      "minimum_depth": 0,
+      "has_direct_basis": true,
+      "status": "planned",
+      "actual_change_evidence": []
+    },
+    {
+      "task_id": "installer:version",
+      "artifact_id": "installer",
+      "artifact_path": "install.ps1",
+      "dimension": "version",
+      "actions": [
+        "apply_mapping",
+        "regenerate_or_synchronize",
+        "synchronize_canonical_content"
+      ],
+      "reasons": [
+        "变更记录中的直接产物动作",
+        "沿规则 PROP-003 从 restore-map 传导",
+        "沿规则 derived:restore-map->installer 从 restore-map 传导"
+      ],
+      "canonical_item_keys": [],
+      "locators": [
+        "install workflow"
+      ],
+      "minimum_depth": 0,
+      "has_direct_basis": true,
+      "status": "planned",
+      "actual_change_evidence": []
+    },
+    {
+      "task_id": "inventory:identifier",
+      "artifact_id": "inventory",
+      "artifact_path": "inventory.json",
+      "dimension": "identifier",
+      "actions": [
+        "regenerate_from_source",
+        "regenerate_or_synchronize",
+        "separate_sources_and_targets"
+      ],
+      "reasons": [
+        "变更记录中的直接产物动作",
+        "沿规则 PROP-005 从 restore-map 传导",
+        "沿规则 derived:restore-map->inventory 从 restore-map 传导"
+      ],
+      "canonical_item_keys": [],
+      "locators": [
+        "skills metadata"
+      ],
+      "minimum_depth": 0,
+      "has_direct_basis": true,
+      "status": "planned",
+      "actual_change_evidence": []
+    },
+    {
+      "task_id": "inventory:structure",
+      "artifact_id": "inventory",
+      "artifact_path": "inventory.json",
+      "dimension": "structure",
+      "actions": [
+        "regenerate_from_source",
+        "regenerate_or_synchronize",
+        "separate_sources_and_targets",
+        "verify_and_update_occurrence"
+      ],
+      "reasons": [
+        "变更记录中的直接产物动作",
+        "沿规则 PROP-005 从 restore-map 传导",
+        "沿规则 derived:restore-map->inventory 从 restore-map 传导",
+        "规范项 skill.restore-target-counts 的已登记出现位置"
+      ],
+      "canonical_item_keys": [
+        "skill.restore-target-counts"
+      ],
+      "locators": [
+        "skills metadata",
+        "skills.restoreTargets"
+      ],
+      "minimum_depth": 0,
+      "has_direct_basis": true,
+      "status": "planned",
+      "actual_change_evidence": []
+    },
+    {
+      "task_id": "inventory:version",
+      "artifact_id": "inventory",
+      "artifact_path": "inventory.json",
+      "dimension": "version",
+      "actions": [
+        "regenerate_from_source",
+        "regenerate_or_synchronize",
+        "separate_sources_and_targets"
+      ],
+      "reasons": [
+        "变更记录中的直接产物动作",
+        "沿规则 PROP-005 从 restore-map 传导",
+        "沿规则 derived:restore-map->inventory 从 restore-map 传导"
+      ],
+      "canonical_item_keys": [],
+      "locators": [
+        "skills metadata"
+      ],
+      "minimum_depth": 0,
+      "has_direct_basis": true,
+      "status": "planned",
+      "actual_change_evidence": []
+    },
+    {
+      "task_id": "restore-map:identifier",
+      "artifact_id": "restore-map",
+      "artifact_path": "restore-map.json",
+      "dimension": "identifier",
+      "actions": [
+        "create_mapping"
+      ],
+      "reasons": [
+        "变更记录中的直接产物动作"
+      ],
+      "canonical_item_keys": [],
+      "locators": [
+        "restore-map.json"
+      ],
+      "minimum_depth": 0,
+      "has_direct_basis": true,
+      "status": "planned",
+      "actual_change_evidence": []
+    },
+    {
+      "task_id": "restore-map:structure",
+      "artifact_id": "restore-map",
+      "artifact_path": "restore-map.json",
+      "dimension": "structure",
+      "actions": [
+        "create_mapping",
+        "update_authoritative_source",
+        "verify_and_update_occurrence"
+      ],
+      "reasons": [
+        "变更记录中的直接产物动作",
+        "规范项 skill.restore-target-counts 的已登记出现位置",
+        "规范项 skill.restore-target-counts 的权威值发生变化"
+      ],
+      "canonical_item_keys": [
+        "skill.restore-target-counts"
+      ],
+      "locators": [
+        "entries and physical target union",
+        "restore-map.json",
+        "restore-map.json and physical source directories"
+      ],
+      "minimum_depth": 0,
+      "has_direct_basis": true,
+      "status": "planned",
+      "actual_change_evidence": []
+    },
+    {
+      "task_id": "restore-map:version",
+      "artifact_id": "restore-map",
+      "artifact_path": "restore-map.json",
+      "dimension": "version",
+      "actions": [
+        "create_mapping"
+      ],
+      "reasons": [
+        "变更记录中的直接产物动作"
+      ],
+      "canonical_item_keys": [],
+      "locators": [
+        "restore-map.json"
+      ],
+      "minimum_depth": 0,
+      "has_direct_basis": true,
+      "status": "planned",
+      "actual_change_evidence": []
+    },
+    {
+      "task_id": "verifier:identifier",
+      "artifact_id": "verifier",
+      "artifact_path": "verify.ps1",
+      "dimension": "identifier",
+      "actions": [
+        "add_checks",
+        "regenerate_or_synchronize",
+        "synchronize_canonical_content"
+      ],
+      "reasons": [
+        "变更记录中的直接产物动作",
+        "沿规则 PROP-004 从 restore-map 传导",
+        "沿规则 derived:restore-map->verifier 从 restore-map 传导"
+      ],
+      "canonical_item_keys": [],
+      "locators": [
+        "mapping validation"
+      ],
+      "minimum_depth": 0,
+      "has_direct_basis": true,
+      "status": "planned",
+      "actual_change_evidence": []
+    },
+    {
+      "task_id": "verifier:structure",
+      "artifact_id": "verifier",
+      "artifact_path": "verify.ps1",
+      "dimension": "structure",
+      "actions": [
+        "add_checks",
+        "regenerate_or_synchronize",
+        "synchronize_canonical_content",
+        "verify_and_update_occurrence"
+      ],
+      "reasons": [
+        "变更记录中的直接产物动作",
+        "沿规则 PROP-004 从 restore-map 传导",
+        "沿规则 derived:restore-map->verifier 从 restore-map 传导",
+        "规范项 skill.restore-target-counts 的已登记出现位置"
+      ],
+      "canonical_item_keys": [
+        "skill.restore-target-counts"
+      ],
+      "locators": [
+        "mapping validation",
+        "target validation"
+      ],
+      "minimum_depth": 0,
+      "has_direct_basis": true,
+      "status": "planned",
+      "actual_change_evidence": []
+    },
+    {
+      "task_id": "verifier:version",
+      "artifact_id": "verifier",
+      "artifact_path": "verify.ps1",
+      "dimension": "version",
+      "actions": [
+        "add_checks",
+        "regenerate_or_synchronize",
+        "synchronize_canonical_content"
+      ],
+      "reasons": [
+        "变更记录中的直接产物动作",
+        "沿规则 PROP-004 从 restore-map 传导",
+        "沿规则 derived:restore-map->verifier 从 restore-map 传导"
+      ],
+      "canonical_item_keys": [],
+      "locators": [
+        "mapping validation"
+      ],
+      "minimum_depth": 0,
+      "has_direct_basis": true,
+      "status": "planned",
+      "actual_change_evidence": []
+    }
+  ],
+  "diagnostics": {
+    "registry_warnings": [],
+    "change_warnings": []
+  }
+}
