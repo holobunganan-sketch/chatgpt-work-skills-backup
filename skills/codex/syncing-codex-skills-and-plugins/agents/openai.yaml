@@ -1,0 +1,4 @@
+interface:
+  display_name: "同步 Codex Skills 与插件"
+  short_description: "在本地 Codex 与私有 GitHub 仓库之间安全同步"
+  default_prompt: "Use $syncing-codex-skills-and-plugins to synchronize my personal Codex skills and plugin."
