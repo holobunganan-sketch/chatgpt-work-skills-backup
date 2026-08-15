@@ -1,4 +1,0 @@
-interface:
-  display_name: "Evidence-Grounded Manuscript Writer"
-  short_description: "Write evidence-grounded, submission-ready manuscripts"
-  default_prompt: "Use $write-evidence-grounded-manuscript to turn my source pack, verified results, references, and figure/table assets into a submission-ready academic manuscript and DOCX."

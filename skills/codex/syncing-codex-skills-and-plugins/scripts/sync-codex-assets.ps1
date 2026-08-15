@@ -63,7 +63,7 @@ function Test-ExcludedPath {
 }
 
 function Get-BytesSha256 {
-    param([Parameter(Mandatory)][byte[]]$Bytes)
+    param([Parameter(Mandatory)][AllowEmptyCollection()][byte[]]$Bytes)
     return [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($Bytes))
 }
 
@@ -135,7 +135,8 @@ function New-SyncUnit {
         [Parameter(Mandatory)][string]$DestinationRoot,
         [Parameter(Mandatory)][string]$Name,
         [Parameter(Mandatory)][string]$Path,
-        [ValidateSet('directory', 'marketplace')][string]$Kind = 'directory'
+        [ValidateSet('directory', 'marketplace')][string]$Kind = 'directory',
+        [string]$RestoreSource
     )
 
     $hash = if ($Kind -eq 'marketplace') {
@@ -152,6 +153,7 @@ function New-SyncUnit {
         kind = $Kind
         path = [IO.Path]::GetFullPath($Path)
         hash = $hash
+        restoreSource = $RestoreSource
     }
 }
 
@@ -179,7 +181,10 @@ function Get-DirectoryUnits {
 }
 
 function Get-CloudSourceUnits {
-    param([Parameter(Mandatory)][string]$PackageRoot)
+    param(
+        [Parameter(Mandatory)][string]$PackageRoot,
+        [switch]$ExpandRestoreMap
+    )
 
     $units = [System.Collections.Generic.List[object]]::new()
     foreach ($unit in Get-DirectoryUnits -Root (Join-Path $PackageRoot 'skills\codex') -DestinationRoot 'codex' -RequireSkillManifest) {
@@ -197,6 +202,51 @@ function Get-CloudSourceUnits {
     $plugin = Join-Path $PackageRoot 'plugins\medical-manuscript-workflow'
     if (Test-Path -LiteralPath $plugin -PathType Container) {
         $units.Add((New-SyncUnit -Identity 'plugin/medical-manuscript-workflow' -DestinationRoot 'plugin' -Name 'medical-manuscript-workflow' -Path $plugin))
+    }
+
+    if ($ExpandRestoreMap) {
+        $mapPath = Join-Path $PackageRoot 'restore-map.json'
+        if (Test-Path -LiteralPath $mapPath -PathType Leaf) {
+            $map = Get-Content -Raw -LiteralPath $mapPath | ConvertFrom-Json
+            if ($map.schemaVersion -ne 1) {
+                throw "Unsupported restore-map schema: $($map.schemaVersion)"
+            }
+            $unitByIdentity = @{}
+            foreach ($unit in $units) {
+                $unitByIdentity[$unit.identity] = $unit
+            }
+            $allowedSourceRoots = @(
+                [IO.Path]::GetFullPath((Join-Path $PackageRoot 'skills\codex')).TrimEnd('\') + '\'
+                [IO.Path]::GetFullPath((Join-Path $PackageRoot 'skills\agents')).TrimEnd('\') + '\'
+                [IO.Path]::GetFullPath((Join-Path $PackageRoot 'plugins\medical-manuscript-workflow\skills')).TrimEnd('\') + '\'
+            )
+            foreach ($entry in @($map.entries)) {
+                if ($entry.destinationRoot -notin @('codex', 'agents')) {
+                    throw "Unsupported restore-map destination: $($entry.destinationRoot)"
+                }
+                if ([string]::IsNullOrWhiteSpace([string]$entry.skillName) -or $entry.skillName -match '[\\/]') {
+                    throw 'Invalid restore-map skill name.'
+                }
+                $identity = "$($entry.destinationRoot)/$($entry.skillName)"
+                if ($unitByIdentity.ContainsKey($identity)) {
+                    throw "Duplicate physical or mapped restore target: $identity"
+                }
+                $sourcePath = Assert-PathWithinRoot -Path (Join-Path $PackageRoot ([string]$entry.source).Replace('/', '\')) -Root $PackageRoot
+                if (-not @($allowedSourceRoots | Where-Object { $sourcePath.StartsWith($_, [StringComparison]::OrdinalIgnoreCase) }).Count) {
+                    throw "Restore-map source is outside an allowed skill root: $($entry.source)"
+                }
+                if (-not (Test-Path -LiteralPath (Join-Path $sourcePath 'SKILL.md') -PathType Leaf)) {
+                    throw "Restore-map source is not a skill: $($entry.source)"
+                }
+                $sourceHash = Get-TreeSha256 -Root $sourcePath
+                if ($sourceHash -ne $entry.sourceTreeHash) {
+                    throw "Restore-map source hash mismatch: $($entry.source)"
+                }
+                $unit = New-SyncUnit -Identity $identity -DestinationRoot $entry.destinationRoot -Name $entry.skillName -Path $sourcePath -RestoreSource $entry.source
+                $units.Add($unit)
+                $unitByIdentity[$identity] = $unit
+            }
+        }
     }
 
     $marketplace = Join-Path $PackageRoot 'marketplace\marketplace.json'
@@ -431,7 +481,7 @@ function Get-PlanIntegritySha256 {
         $lines.Add("$name`t$($Plan.$name)")
     }
     foreach ($item in @($Plan.items | Sort-Object identity)) {
-        $lines.Add("item`t$($item.identity)`t$($item.destinationRoot)`t$($item.name)`t$($item.kind)`t$($item.classification)`t$($item.sourcePath)`t$($item.targetPath)`t$($item.sourceHash)`t$($item.targetHash)")
+        $lines.Add("item`t$($item.identity)`t$($item.destinationRoot)`t$($item.name)`t$($item.kind)`t$($item.classification)`t$($item.sourcePath)`t$($item.targetPath)`t$($item.sourceHash)`t$($item.targetHash)`t$($item.restoreSource)")
     }
     foreach ($name in @('add', 'identical', 'conflict', 'extra', 'deduplicated-source', 'blocked')) {
         $lines.Add("summary.$name`t$($Plan.summary.$name)")
@@ -448,8 +498,8 @@ function Get-PlanIntegritySha256 {
 function New-SyncPlan {
     param(
         [Parameter(Mandatory)][string]$PlanDirection,
-        [Parameter(Mandatory)][object[]]$SourceUnits,
-        [Parameter(Mandatory)][object[]]$TargetUnits,
+        [Parameter(Mandatory)][AllowEmptyCollection()][object[]]$SourceUnits,
+        [Parameter(Mandatory)][AllowEmptyCollection()][object[]]$TargetUnits,
         [Parameter(Mandatory)][string]$UserRoot,
         [Parameter(Mandatory)][string]$RepositoryUrl
     )
@@ -488,6 +538,7 @@ function New-SyncPlan {
             targetPath = if ($null -ne $target) { $target.path } else { Get-TargetPath -UserRoot $UserRoot -DestinationRoot $reference.destinationRoot -Name $reference.name }
             sourceHash = if ($null -ne $source) { $source.hash } else { $null }
             targetHash = if ($null -ne $target) { $target.hash } else { $null }
+            restoreSource = if ($null -ne $source) { $source.restoreSource } else { $null }
         })
     }
 
@@ -496,7 +547,7 @@ function New-SyncPlan {
         identical = @($items | Where-Object classification -eq 'identical').Count
         conflict = @($items | Where-Object classification -eq 'conflict').Count
         extra = @($items | Where-Object classification -eq 'extra').Count
-        'deduplicated-source' = 0
+        'deduplicated-source' = @($SourceUnits | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_.restoreSource) }).Count
         blocked = 0
     }
 
@@ -1065,7 +1116,7 @@ Resolve-Inputs
 
 if ($Mode -eq 'Plan') {
     if ($Direction -eq 'CloudToLocal') {
-        $sourceUnits = @(Get-CloudSourceUnits -PackageRoot $RepoRoot)
+        $sourceUnits = @(Get-CloudSourceUnits -PackageRoot $RepoRoot -ExpandRestoreMap)
         $targetUnits = @(Get-LocalTargetUnits -UserRoot $TargetUserRoot)
         $plan = New-SyncPlan -PlanDirection $Direction -SourceUnits $sourceUnits -TargetUnits $targetUnits -UserRoot $TargetUserRoot -RepositoryUrl $RepoUrl
     }

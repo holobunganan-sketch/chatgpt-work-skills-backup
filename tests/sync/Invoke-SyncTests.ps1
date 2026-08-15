@@ -89,6 +89,27 @@ function Copy-TestTree {
     Get-ChildItem -LiteralPath $Source -Force | Copy-Item -Destination $Destination -Recurse -Force
 }
 
+function Get-TestTreeSha256 {
+    param([Parameter(Mandatory)][string]$Root)
+
+    $lines = [System.Collections.Generic.List[string]]::new()
+    foreach ($file in Get-ChildItem -LiteralPath $Root -File -Recurse -Force) {
+        $relative = [IO.Path]::GetRelativePath($Root, $file.FullName).Replace('\', '/')
+        $segments = @($relative.Split('/', [StringSplitOptions]::RemoveEmptyEntries))
+        if ($segments -contains '.git' -or $segments -contains '.system' -or $segments -contains '__pycache__') {
+            continue
+        }
+        if ($file.Name -eq 'config.toml' -or $file.Name -like '.env*' -or $file.Extension.ToLowerInvariant() -in @('.pyc', '.pyo', '.tmp', '.temp')) {
+            continue
+        }
+        $lines.Add("$relative`t$((Get-FileHash -Algorithm SHA256 -LiteralPath $file.FullName).Hash)")
+    }
+    $ordered = $lines.ToArray()
+    [Array]::Sort($ordered, [StringComparer]::Ordinal)
+    $payload = if ($ordered.Count -gt 0) { ($ordered -join "`n") + "`n" } else { '' }
+    return [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.UTF8Encoding]::new($false).GetBytes($payload)))
+}
+
 function New-TestPackage {
     param([string]$Root)
 
@@ -305,6 +326,51 @@ function Test-RootInstallerDryRun {
     }
 }
 
+function Test-CloudRestoresMappedDuplicate {
+    $testRoot = New-TestRoot
+    try {
+        $package = New-TestPackage -Root (Join-Path $testRoot 'package')
+        New-TestSkill -Root (Join-Path $package 'skills\codex') -Name 'duplicated-skill' -Marker 'mapped canonical copy' | Out-Null
+        $userRoot = New-TestUserRoot -Root (Join-Path $testRoot 'user') -PackageRoot $package
+        $hashPlanPath = Join-Path $testRoot 'hash-plan.json'
+        Invoke-Engine -Arguments @('-Mode','Plan','-Direction','CloudToLocal','-RepoRoot',$package,'-TargetUserRoot',$userRoot,'-WorkspaceRoot',(Join-Path $testRoot 'workspace'),'-PlanPath',$hashPlanPath,'-ReportPath',(Join-Path $testRoot 'hash-report.json')) | Out-Null
+        $hashPlan = Get-Content -Raw -LiteralPath $hashPlanPath | ConvertFrom-Json
+        $canonical = Get-PlanItem -Plan $hashPlan -Identity 'codex/duplicated-skill'
+        $map = [ordered]@{
+            schemaVersion = 1
+            entries = @([ordered]@{
+                source = 'skills/codex/duplicated-skill'
+                destinationRoot = 'agents'
+                skillName = 'duplicated-skill'
+                sourceTreeHash = $canonical.sourceHash
+            })
+        }
+        Write-Utf8File -Path (Join-Path $package 'restore-map.json') -Content (($map | ConvertTo-Json -Depth 10) + "`n")
+
+        $planPath = Join-Path $testRoot 'plan.json'
+        $reportPath = Join-Path $testRoot 'report.json'
+        Invoke-Engine -Arguments @('-Mode','Plan','-Direction','CloudToLocal','-RepoRoot',$package,'-TargetUserRoot',$userRoot,'-WorkspaceRoot',(Join-Path $testRoot 'workspace'),'-PlanPath',$planPath,'-ReportPath',$reportPath) | Out-Null
+        $plan = Get-Content -Raw -LiteralPath $planPath | ConvertFrom-Json
+        $mapped = Get-PlanItem -Plan $plan -Identity 'agents/duplicated-skill'
+        Assert-Equal $mapped.classification 'add' 'Mapped Agent skill classification'
+        Assert-Equal $mapped.sourcePath $canonical.sourcePath 'Mapped Agent skill did not reuse the canonical source.'
+        Assert-Equal $plan.summary.'deduplicated-source' 1 'Cloud plan did not report its mapped duplicate.'
+
+        Invoke-Engine -Arguments @('-Mode','Apply','-Direction','CloudToLocal','-Decision','KeepTarget','-RepoRoot',$package,'-TargetUserRoot',$userRoot,'-WorkspaceRoot',(Join-Path $testRoot 'workspace'),'-PlanPath',$planPath,'-ReportPath',$reportPath) | Out-Null
+        Assert-Equal (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $userRoot '.agents\skills\duplicated-skill\SKILL.md')).Hash (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $package 'skills\codex\duplicated-skill\SKILL.md')).Hash 'Mapped Agent skill content differs from the canonical source.'
+
+        $secondPlanPath = Join-Path $testRoot 'second-plan.json'
+        Invoke-Engine -Arguments @('-Mode','Plan','-Direction','CloudToLocal','-RepoRoot',$package,'-TargetUserRoot',$userRoot,'-WorkspaceRoot',(Join-Path $testRoot 'workspace'),'-PlanPath',$secondPlanPath,'-ReportPath',(Join-Path $testRoot 'second-report.json')) | Out-Null
+        $secondPlan = Get-Content -Raw -LiteralPath $secondPlanPath | ConvertFrom-Json
+        Assert-Equal (Get-PlanItem -Plan $secondPlan -Identity 'agents/duplicated-skill').classification 'identical' 'Mapped Agent skill was not idempotent.'
+    }
+    finally {
+        if (Test-Path -LiteralPath $testRoot) {
+            Remove-Item -LiteralPath $testRoot -Recurse -Force
+        }
+    }
+}
+
 function Test-LocalToCloudSourceWins {
     $testRoot = New-TestRoot
     try {
@@ -470,8 +536,48 @@ function Test-LocalToCloudRetainsCommitWhenPushRejected {
 
 function Test-RepositoryContract {
     Assert-True (Test-Path -LiteralPath (Join-Path $repoRoot 'restore-map.json')) 'restore-map.json must exist.'
+    $restoreMap = Get-Content -Raw -LiteralPath (Join-Path $repoRoot 'restore-map.json') | ConvertFrom-Json
+    Assert-Equal $restoreMap.schemaVersion 1 'Restore-map schema version'
+    Assert-Equal @($restoreMap.entries).Count 26 'Restore-map entry count'
+    $identities = @($restoreMap.entries | ForEach-Object { "$($_.destinationRoot)/$($_.skillName)" })
+    Assert-Equal @($identities | Sort-Object -Unique).Count 26 'Restore-map unique destination count'
+    foreach ($entry in $restoreMap.entries) {
+        $physicalTarget = if ($entry.destinationRoot -eq 'codex') {
+            Join-Path $repoRoot "skills\codex\$($entry.skillName)"
+        }
+        else {
+            Join-Path $repoRoot "skills\agents\$($entry.skillName)"
+        }
+        Assert-True (-not (Test-Path -LiteralPath $physicalTarget)) "Mapped duplicate still exists physically: $($entry.destinationRoot)/$($entry.skillName)"
+    }
     $physical = @(Get-ChildItem -LiteralPath (Join-Path $repoRoot 'skills'), (Join-Path $repoRoot 'plugins\medical-manuscript-workflow\skills') -Filter 'SKILL.md' -File -Recurse -Force)
     Assert-Equal $physical.Count 49 'Physical skill directory count'
+    $physicalUnits = @($physical | ForEach-Object {
+        [pscustomobject]@{
+            name = $_.Directory.Name
+            hash = Get-TestTreeSha256 -Root $_.Directory.FullName
+        }
+    })
+    $exactDuplicateGroups = @($physicalUnits | Group-Object name | Where-Object {
+        $_.Count -gt 1 -and @($_.Group.hash | Sort-Object -Unique).Count -eq 1
+    })
+    Assert-Equal $exactDuplicateGroups.Count 0 'Exact physical duplicate group count'
+
+    $testRoot = New-TestRoot
+    try {
+        $planPath = Join-Path $testRoot 'repository-plan.json'
+        Invoke-Engine -Arguments @('-Mode','Plan','-Direction','CloudToLocal','-RepoRoot',$repoRoot,'-TargetUserRoot',(Join-Path $testRoot 'empty-user'),'-WorkspaceRoot',(Join-Path $testRoot 'workspace'),'-PlanPath',$planPath,'-ReportPath',(Join-Path $testRoot 'report.json')) | Out-Null
+        $plan = Get-Content -Raw -LiteralPath $planPath | ConvertFrom-Json
+        Assert-Equal $plan.summary.'deduplicated-source' 26 'Repository plan mapped duplicate count'
+        Assert-Equal @($plan.items | Where-Object destinationRoot -eq 'codex').Count 37 'Logical Codex skill count'
+        Assert-Equal @($plan.items | Where-Object destinationRoot -eq 'agents').Count 26 'Logical Agent skill count'
+        Assert-Equal @($plan.items.identity | Sort-Object -Unique).Count @($plan.items).Count 'Repository plan contains duplicate identities'
+    }
+    finally {
+        if (Test-Path -LiteralPath $testRoot) {
+            Remove-Item -LiteralPath $testRoot -Recurse -Force
+        }
+    }
 }
 
 function Test-SkillContract {
@@ -494,6 +600,7 @@ if ($TestGroup -in @('All', 'CloudToLocal')) {
     Invoke-Test -Name 'cloud-to-local source-wins backs up conflicts and is idempotent' -Body { Test-CloudSourceWinsAndIdempotence }
     Invoke-Test -Name 'cloud-to-local rejects a stale plan before writing' -Body { Test-CloudRejectsStalePlan }
     Invoke-Test -Name 'root installer dry run delegates without writing targets' -Body { Test-RootInstallerDryRun }
+    Invoke-Test -Name 'cloud-to-local restores mapped duplicates from one canonical source' -Body { Test-CloudRestoresMappedDuplicate }
 }
 if ($TestGroup -in @('All', 'LocalToCloud')) {
     Invoke-Test -Name 'local-to-cloud source-wins commits and pushes through a temporary remote' -Body { Test-LocalToCloudSourceWins }

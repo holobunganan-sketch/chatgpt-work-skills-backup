@@ -1,4 +1,0 @@
-interface:
-  display_name: "Formal Deliverable CoWork"
-  short_description: "Clean formal deliverables for MSL workflows"
-  default_prompt: "Use $formal-deliverable-cowork to produce clean, directly usable formal deliverables."
