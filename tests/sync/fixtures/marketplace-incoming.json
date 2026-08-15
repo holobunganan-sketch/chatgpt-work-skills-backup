@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "plugins": [
+    {
+      "name": "medical-manuscript-workflow",
+      "source": "../../plugins/medical-manuscript-workflow"
+    }
+  ]
+}

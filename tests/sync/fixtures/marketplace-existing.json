@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "plugins": [
+    {
+      "name": "unrelated-plugin",
+      "source": "../unrelated-plugin"
+    },
+    {
+      "name": "medical-manuscript-workflow",
+      "source": "../existing-medical-manuscript-workflow"
+    }
+  ]
+}
