@@ -260,6 +260,25 @@ function Get-UnitsFingerprint {
     return Get-TextSha256 -Text $payload
 }
 
+function Get-PlanIntegritySha256 {
+    param([Parameter(Mandatory)]$Plan)
+
+    $lines = [System.Collections.Generic.List[string]]::new()
+    foreach ($name in @('schemaVersion', 'runId', 'state', 'direction', 'generatedAt', 'repository', 'sourceFingerprint', 'targetFingerprint', 'remoteCommit', 'rulesVersion')) {
+        $lines.Add("$name`t$($Plan.$name)")
+    }
+    foreach ($item in @($Plan.items | Sort-Object identity)) {
+        $lines.Add("item`t$($item.identity)`t$($item.destinationRoot)`t$($item.name)`t$($item.kind)`t$($item.classification)`t$($item.sourcePath)`t$($item.targetPath)`t$($item.sourceHash)`t$($item.targetHash)")
+    }
+    foreach ($name in @('add', 'identical', 'conflict', 'extra', 'deduplicated-source', 'blocked')) {
+        $lines.Add("summary.$name`t$($Plan.summary.$name)")
+    }
+    foreach ($blocker in @($Plan.blockers)) {
+        $lines.Add("blocker`t$blocker")
+    }
+    return Get-TextSha256 -Text (($lines -join "`n") + "`n")
+}
+
 function New-SyncPlan {
     param(
         [Parameter(Mandatory)][string]$PlanDirection,
@@ -331,7 +350,6 @@ function New-SyncPlan {
         blockers = @()
         planSha256 = ''
     }
-    $plan.planSha256 = Get-TextSha256 -Text ($plan | ConvertTo-Json -Depth 50 -Compress)
     return $plan
 }
 
@@ -347,6 +365,295 @@ function Write-JsonUtf8 {
         New-Item -ItemType Directory -Path $parent -Force | Out-Null
     }
     [IO.File]::WriteAllText($fullPath, (($Value | ConvertTo-Json -Depth 50) + "`n"), $script:Utf8NoBom)
+}
+
+function Write-FinalizedPlan {
+    param(
+        [Parameter(Mandatory)]$Plan,
+        [Parameter(Mandatory)][string]$Path
+    )
+
+    $Plan.planSha256 = ''
+    Write-JsonUtf8 -Value $Plan -Path $Path
+    $roundTripped = Get-Content -Raw -LiteralPath $Path | ConvertFrom-Json
+    $roundTripped.planSha256 = Get-PlanIntegritySha256 -Plan $roundTripped
+    Write-JsonUtf8 -Value $roundTripped -Path $Path
+    return $roundTripped
+}
+
+function Read-AndValidatePlan {
+    param([Parameter(Mandatory)][string]$Path)
+
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
+        throw "Plan file not found: $Path"
+    }
+    $plan = Get-Content -Raw -LiteralPath $Path | ConvertFrom-Json
+    if ($plan.schemaVersion -ne 1) {
+        throw "Unsupported plan schema: $($plan.schemaVersion)"
+    }
+    if ($plan.planSha256 -notmatch '^[A-F0-9]{64}$') {
+        throw 'Plan hash is missing or malformed.'
+    }
+    $expected = $plan.planSha256
+    $actual = Get-PlanIntegritySha256 -Plan $plan
+    if ($actual -ne $expected) {
+        throw "Plan hash validation failed. Expected $expected, got $actual."
+    }
+    return $plan
+}
+
+function Get-CurrentItemHash {
+    param(
+        [Parameter(Mandatory)]$Item,
+        [ValidateSet('Source', 'Target')][string]$Side
+    )
+
+    $path = if ($Side -eq 'Source') { $Item.sourcePath } else { $Item.targetPath }
+    if ([string]::IsNullOrWhiteSpace([string]$path)) {
+        return $null
+    }
+    if ($Item.kind -eq 'marketplace') {
+        return Get-MarketplaceEntrySha256 -Path $path
+    }
+    return Get-TreeSha256 -Root $path
+}
+
+function Get-StalePlanReasons {
+    param([Parameter(Mandatory)]$Plan)
+
+    $reasons = [System.Collections.Generic.List[string]]::new()
+    foreach ($item in $Plan.items) {
+        $currentSource = Get-CurrentItemHash -Item $item -Side Source
+        $currentTarget = Get-CurrentItemHash -Item $item -Side Target
+        if ($currentSource -ne $item.sourceHash) {
+            $reasons.Add("source:$($item.identity)")
+        }
+        if ($currentTarget -ne $item.targetHash) {
+            $reasons.Add("target:$($item.identity)")
+        }
+    }
+    return @($reasons)
+}
+
+function Assert-PathWithinUserRoot {
+    param(
+        [Parameter(Mandatory)][string]$Path,
+        [Parameter(Mandatory)][string]$UserRoot
+    )
+
+    $fullPath = [IO.Path]::GetFullPath($Path)
+    $fullRoot = [IO.Path]::GetFullPath($UserRoot).TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
+    if (-not $fullPath.StartsWith($fullRoot, [StringComparison]::OrdinalIgnoreCase)) {
+        throw "Target escapes user root: $fullPath"
+    }
+    return $fullPath
+}
+
+function Copy-PathExact {
+    param(
+        [Parameter(Mandatory)][string]$Source,
+        [Parameter(Mandatory)][string]$Destination
+    )
+
+    $parent = Split-Path -Parent $Destination
+    if ($parent) {
+        New-Item -ItemType Directory -Path $parent -Force | Out-Null
+    }
+    if (Test-Path -LiteralPath $Source -PathType Container) {
+        Copy-Item -LiteralPath $Source -Destination $Destination -Recurse -Force
+    }
+    else {
+        Copy-Item -LiteralPath $Source -Destination $Destination -Force
+    }
+}
+
+function Remove-PathExact {
+    param(
+        [Parameter(Mandatory)][string]$Path,
+        [Parameter(Mandatory)][string]$UserRoot
+    )
+
+    $safePath = Assert-PathWithinUserRoot -Path $Path -UserRoot $UserRoot
+    if (Test-Path -LiteralPath $safePath) {
+        Remove-Item -LiteralPath $safePath -Recurse -Force
+    }
+}
+
+function Backup-Target {
+    param(
+        [Parameter(Mandatory)][string]$TargetPath,
+        [Parameter(Mandatory)][string]$UserRoot,
+        [Parameter(Mandatory)][string]$BackupRoot
+    )
+
+    $safeTarget = Assert-PathWithinUserRoot -Path $TargetPath -UserRoot $UserRoot
+    if (-not (Test-Path -LiteralPath $safeTarget)) {
+        return $null
+    }
+    $relative = [IO.Path]::GetRelativePath([IO.Path]::GetFullPath($UserRoot), $safeTarget)
+    if ($relative.StartsWith('..')) {
+        throw "Cannot back up path outside user root: $safeTarget"
+    }
+    $backupPath = Join-Path $BackupRoot $relative
+    Copy-PathExact -Source $safeTarget -Destination $backupPath
+    return $backupPath
+}
+
+function Merge-MarketplaceEntry {
+    param(
+        [Parameter(Mandatory)][string]$SourcePath,
+        [Parameter(Mandatory)][string]$TargetPath
+    )
+
+    $incoming = Get-MarketplaceEntry -Path $SourcePath
+    if ($null -eq $incoming) {
+        throw 'Incoming marketplace entry is missing.'
+    }
+    if (Test-Path -LiteralPath $TargetPath -PathType Leaf) {
+        $target = Get-Content -Raw -LiteralPath $TargetPath | ConvertFrom-Json
+        if ($null -eq $target.plugins) {
+            $target | Add-Member -MemberType NoteProperty -Name plugins -Value @()
+        }
+        $remaining = @($target.plugins | Where-Object { $_.name -ne 'medical-manuscript-workflow' })
+        $target.plugins = @($remaining) + @($incoming)
+    }
+    else {
+        $target = [pscustomobject][ordered]@{
+            schemaVersion = 1
+            plugins = @($incoming)
+        }
+    }
+    Write-JsonUtf8 -Value $target -Path $TargetPath
+}
+
+function New-ApplyReport {
+    param(
+        [Parameter(Mandatory)]$Plan,
+        [Parameter(Mandatory)][string]$ApplyDecision
+    )
+
+    return [pscustomobject][ordered]@{
+        schemaVersion = 1
+        runId = $Plan.runId
+        state = 'approved'
+        direction = $Plan.direction
+        decision = $ApplyDecision
+        planSha256 = $Plan.planSha256
+        startedAt = [DateTimeOffset]::UtcNow.ToString('o')
+        completedAt = $null
+        summary = [pscustomobject][ordered]@{
+            written = 0
+            skipped = 0
+            conflicts = @($Plan.items | Where-Object classification -eq 'conflict').Count
+            backups = 0
+        }
+        actions = @()
+        staleReasons = @()
+        errors = @()
+        rollback = @()
+    }
+}
+
+function Invoke-CloudToLocalApply {
+    param(
+        [Parameter(Mandatory)]$Plan,
+        [Parameter(Mandatory)][string]$ApplyDecision,
+        [Parameter(Mandatory)][string]$UserRoot,
+        [Parameter(Mandatory)][string]$OutputReportPath
+    )
+
+    $report = New-ApplyReport -Plan $Plan -ApplyDecision $ApplyDecision
+    if ($ApplyDecision -eq 'Cancel') {
+        $report.state = 'cancelled'
+        $report.completedAt = [DateTimeOffset]::UtcNow.ToString('o')
+        Write-JsonUtf8 -Value $report -Path $OutputReportPath
+        return [pscustomobject]@{ ExitCode = 2; Report = $report }
+    }
+
+    $staleReasons = @(Get-StalePlanReasons -Plan $Plan)
+    if ($staleReasons.Count -gt 0) {
+        $report.state = 'stale'
+        $report.staleReasons = $staleReasons
+        $report.completedAt = [DateTimeOffset]::UtcNow.ToString('o')
+        Write-JsonUtf8 -Value $report -Path $OutputReportPath
+        return [pscustomobject]@{ ExitCode = 3; Report = $report }
+    }
+
+    $backupRoot = Join-Path $UserRoot ".codex\sync-backups\$($Plan.runId)"
+    $transaction = [System.Collections.Generic.List[object]]::new()
+    $actions = [System.Collections.Generic.List[object]]::new()
+    try {
+        foreach ($item in $Plan.items) {
+            $shouldWrite = $item.classification -eq 'add' -or ($item.classification -eq 'conflict' -and $ApplyDecision -eq 'SourceWins')
+            if (-not $shouldWrite) {
+                $actions.Add([pscustomobject]@{ identity = $item.identity; action = 'skipped'; classification = $item.classification })
+                $report.summary.skipped++
+                continue
+            }
+
+            $targetPath = Assert-PathWithinUserRoot -Path $item.targetPath -UserRoot $UserRoot
+            $hadOriginal = Test-Path -LiteralPath $targetPath
+            $backupPath = if ($hadOriginal) { Backup-Target -TargetPath $targetPath -UserRoot $UserRoot -BackupRoot $backupRoot } else { $null }
+            if ($null -ne $backupPath) {
+                $report.summary.backups++
+            }
+            $transaction.Add([pscustomobject]@{
+                targetPath = $targetPath
+                hadOriginal = $hadOriginal
+                backupPath = $backupPath
+            })
+
+            if ($item.kind -eq 'marketplace') {
+                Merge-MarketplaceEntry -SourcePath $item.sourcePath -TargetPath $targetPath
+            }
+            else {
+                if ($hadOriginal) {
+                    Remove-PathExact -Path $targetPath -UserRoot $UserRoot
+                }
+                Copy-PathExact -Source $item.sourcePath -Destination $targetPath
+            }
+
+            $actualHash = Get-CurrentItemHash -Item ([pscustomobject]@{
+                kind = $item.kind
+                sourcePath = $item.sourcePath
+                targetPath = $targetPath
+            }) -Side Target
+            if ($actualHash -ne $item.sourceHash) {
+                throw "Post-write hash mismatch: $($item.identity)"
+            }
+            $actions.Add([pscustomobject]@{ identity = $item.identity; action = 'written'; classification = $item.classification; backupPath = $backupPath })
+            $report.summary.written++
+        }
+
+        $report.state = 'applied'
+        $report.actions = @($actions)
+        $report.completedAt = [DateTimeOffset]::UtcNow.ToString('o')
+        Write-JsonUtf8 -Value $report -Path $OutputReportPath
+        return [pscustomobject]@{ ExitCode = 0; Report = $report }
+    }
+    catch {
+        $rollback = [System.Collections.Generic.List[object]]::new()
+        for ($index = $transaction.Count - 1; $index -ge 0; $index--) {
+            $entry = $transaction[$index]
+            try {
+                Remove-PathExact -Path $entry.targetPath -UserRoot $UserRoot
+                if ($entry.hadOriginal) {
+                    Copy-PathExact -Source $entry.backupPath -Destination $entry.targetPath
+                }
+                $rollback.Add([pscustomobject]@{ targetPath = $entry.targetPath; status = 'restored' })
+            }
+            catch {
+                $rollback.Add([pscustomobject]@{ targetPath = $entry.targetPath; status = 'rollback-failed'; message = $_.Exception.Message })
+            }
+        }
+        $report.state = 'failed'
+        $report.actions = @($actions)
+        $report.errors = @($_.Exception.Message)
+        $report.rollback = @($rollback)
+        $report.completedAt = [DateTimeOffset]::UtcNow.ToString('o')
+        Write-JsonUtf8 -Value $report -Path $OutputReportPath
+        return [pscustomobject]@{ ExitCode = 4; Report = $report }
+    }
 }
 
 function Resolve-Inputs {
@@ -378,14 +685,24 @@ if ($Mode -eq 'Plan') {
     $sourceUnits = @(Get-CloudSourceUnits -PackageRoot $RepoRoot)
     $targetUnits = @(Get-LocalTargetUnits -UserRoot $TargetUserRoot)
     $plan = New-SyncPlan -PlanDirection $Direction -SourceUnits $sourceUnits -TargetUnits $targetUnits -UserRoot $TargetUserRoot -RepositoryUrl $RepoUrl
-    Write-JsonUtf8 -Value $plan -Path $PlanPath
+    $plan = Write-FinalizedPlan -Plan $plan -Path $PlanPath
     Write-Host "Plan created: $PlanPath"
     Write-Host "add=$($plan.summary.add) identical=$($plan.summary.identical) conflict=$($plan.summary.conflict) extra=$($plan.summary.extra)"
     exit 0
 }
 
 if ($Mode -eq 'Apply') {
-    throw 'Apply mode is not implemented yet.'
+    $plan = Read-AndValidatePlan -Path $PlanPath
+    if ($plan.direction -ne $Direction) {
+        throw "Plan direction $($plan.direction) does not match requested direction $Direction."
+    }
+    if ($Direction -ne 'CloudToLocal') {
+        throw 'LocalToCloud application is not implemented yet.'
+    }
+    $result = Invoke-CloudToLocalApply -Plan $plan -ApplyDecision $Decision -UserRoot $TargetUserRoot -OutputReportPath $ReportPath
+    Write-Host "Sync state: $($result.Report.state)"
+    Write-Host "written=$($result.Report.summary.written) skipped=$($result.Report.summary.skipped) conflicts=$($result.Report.summary.conflicts) backups=$($result.Report.summary.backups)"
+    exit $result.ExitCode
 }
 
 throw 'Verify mode is not implemented yet.'

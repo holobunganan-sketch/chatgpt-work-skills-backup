@@ -200,6 +200,88 @@ function Test-CloudKeepTarget {
     }
 }
 
+function Test-CloudSourceWinsAndIdempotence {
+    $testRoot = New-TestRoot
+    try {
+        $package = New-TestPackage -Root (Join-Path $testRoot 'package')
+        $userRoot = New-TestUserRoot -Root (Join-Path $testRoot 'user') -PackageRoot $package
+        $planPath = Join-Path $testRoot 'plan.json'
+        $reportPath = Join-Path $testRoot 'report.json'
+        $conflictSource = Join-Path $package 'skills\codex\conflict-skill'
+        $conflictTarget = Join-Path $userRoot '.codex\skills\conflict-skill'
+
+        Invoke-Engine -Arguments @('-Mode','Plan','-Direction','CloudToLocal','-RepoRoot',$package,'-TargetUserRoot',$userRoot,'-WorkspaceRoot',(Join-Path $testRoot 'workspace'),'-PlanPath',$planPath,'-ReportPath',$reportPath) | Out-Null
+        $plan = Get-Content -Raw -LiteralPath $planPath | ConvertFrom-Json
+        Invoke-Engine -Arguments @('-Mode','Apply','-Direction','CloudToLocal','-Decision','SourceWins','-RepoRoot',$package,'-TargetUserRoot',$userRoot,'-WorkspaceRoot',(Join-Path $testRoot 'workspace'),'-PlanPath',$planPath,'-ReportPath',$reportPath) | Out-Null
+
+        Assert-Equal (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $conflictTarget 'SKILL.md')).Hash (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $conflictSource 'SKILL.md')).Hash 'SourceWins did not replace the conflict.'
+        $backupPath = Join-Path $userRoot ".codex\sync-backups\$($plan.runId)\.codex\skills\conflict-skill\SKILL.md"
+        Assert-True (Test-Path -LiteralPath $backupPath) 'SourceWins did not create a conflict backup.'
+        $marketplace = Get-Content -Raw -LiteralPath (Join-Path $userRoot '.agents\plugins\marketplace.json') | ConvertFrom-Json
+        Assert-True (@($marketplace.plugins | Where-Object { $_.name -eq 'unrelated-plugin' }).Count -eq 1) 'SourceWins marketplace merge removed unrelated entry.'
+        $medicalEntry = @($marketplace.plugins | Where-Object { $_.name -eq 'medical-manuscript-workflow' }) | Select-Object -First 1
+        Assert-Equal -Actual $medicalEntry.source -Expected '../../plugins/medical-manuscript-workflow' -Message 'SourceWins did not update the marketplace entry.'
+
+        $secondPlanPath = Join-Path $testRoot 'second-plan.json'
+        $secondReportPath = Join-Path $testRoot 'second-report.json'
+        Invoke-Engine -Arguments @('-Mode','Plan','-Direction','CloudToLocal','-RepoRoot',$package,'-TargetUserRoot',$userRoot,'-WorkspaceRoot',(Join-Path $testRoot 'workspace'),'-PlanPath',$secondPlanPath,'-ReportPath',$secondReportPath) | Out-Null
+        $secondPlan = Get-Content -Raw -LiteralPath $secondPlanPath | ConvertFrom-Json
+        Assert-Equal $secondPlan.summary.add 0 'Second run still has additions.'
+        Assert-Equal $secondPlan.summary.conflict 0 'Second run still has conflicts.'
+        Invoke-Engine -Arguments @('-Mode','Apply','-Direction','CloudToLocal','-Decision','KeepTarget','-RepoRoot',$package,'-TargetUserRoot',$userRoot,'-WorkspaceRoot',(Join-Path $testRoot 'workspace'),'-PlanPath',$secondPlanPath,'-ReportPath',$secondReportPath) | Out-Null
+        $secondReport = Get-Content -Raw -LiteralPath $secondReportPath | ConvertFrom-Json
+        Assert-Equal $secondReport.summary.written 0 'Second run performed writes.'
+    }
+    finally {
+        if (Test-Path -LiteralPath $testRoot) {
+            Remove-Item -LiteralPath $testRoot -Recurse -Force
+        }
+    }
+}
+
+function Test-CloudRejectsStalePlan {
+    $testRoot = New-TestRoot
+    try {
+        $package = New-TestPackage -Root (Join-Path $testRoot 'package')
+        $userRoot = New-TestUserRoot -Root (Join-Path $testRoot 'user') -PackageRoot $package
+        $planPath = Join-Path $testRoot 'plan.json'
+        $reportPath = Join-Path $testRoot 'report.json'
+
+        Invoke-Engine -Arguments @('-Mode','Plan','-Direction','CloudToLocal','-RepoRoot',$package,'-TargetUserRoot',$userRoot,'-WorkspaceRoot',(Join-Path $testRoot 'workspace'),'-PlanPath',$planPath,'-ReportPath',$reportPath) | Out-Null
+        Add-Content -LiteralPath (Join-Path $userRoot '.codex\skills\conflict-skill\SKILL.md') -Value 'changed-after-plan'
+        Invoke-Engine -Arguments @('-Mode','Apply','-Direction','CloudToLocal','-Decision','KeepTarget','-RepoRoot',$package,'-TargetUserRoot',$userRoot,'-WorkspaceRoot',(Join-Path $testRoot 'workspace'),'-PlanPath',$planPath,'-ReportPath',$reportPath) -ExpectedExitCode 3 | Out-Null
+        Assert-True (-not (Test-Path -LiteralPath (Join-Path $userRoot '.codex\skills\missing-skill'))) 'Stale plan wrote a missing skill before stopping.'
+    }
+    finally {
+        if (Test-Path -LiteralPath $testRoot) {
+            Remove-Item -LiteralPath $testRoot -Recurse -Force
+        }
+    }
+}
+
+function Test-RootInstallerDryRun {
+    $testRoot = New-TestRoot
+    try {
+        $package = New-TestPackage -Root (Join-Path $testRoot 'package')
+        $userRoot = New-TestUserRoot -Root (Join-Path $testRoot 'user') -PackageRoot $package
+        Copy-Item -LiteralPath (Join-Path $repoRoot 'install.ps1') -Destination (Join-Path $package 'install.ps1')
+        Write-Utf8File -Path (Join-Path $package 'verify.ps1') -Content "exit 0`n"
+        $engineDestination = Join-Path $package 'skills\codex\syncing-codex-skills-and-plugins\scripts\sync-codex-assets.ps1'
+        New-Item -ItemType Directory -Path (Split-Path -Parent $engineDestination) -Force | Out-Null
+        Copy-Item -LiteralPath $engine -Destination $engineDestination
+
+        $output = & pwsh -NoProfile -File (Join-Path $package 'install.ps1') -DryRun -TargetUserRoot $userRoot 2>&1
+        Assert-Equal $LASTEXITCODE 0 "Root installer dry run failed: $($output -join ' | ')"
+        Assert-True (-not (Test-Path -LiteralPath (Join-Path $userRoot '.codex\skills\missing-skill'))) 'Dry run installed a missing skill.'
+        Assert-True (@(Get-ChildItem -LiteralPath (Join-Path $userRoot '.codex\sync-workspaces') -Filter 'install-plan-*.json' -File -ErrorAction SilentlyContinue).Count -eq 1) 'Dry run did not create one plan.'
+    }
+    finally {
+        if (Test-Path -LiteralPath $testRoot) {
+            Remove-Item -LiteralPath $testRoot -Recurse -Force
+        }
+    }
+}
+
 function Test-RepositoryContract {
     Assert-True (Test-Path -LiteralPath (Join-Path $repoRoot 'restore-map.json')) 'restore-map.json must exist.'
     $physical = @(Get-ChildItem -LiteralPath (Join-Path $repoRoot 'skills'), (Join-Path $repoRoot 'plugins\medical-manuscript-workflow\skills') -Filter 'SKILL.md' -File -Recurse -Force)
@@ -223,6 +305,9 @@ if ($TestGroup -in @('All', 'Plan')) {
 }
 if ($TestGroup -in @('All', 'CloudToLocal')) {
     Invoke-Test -Name 'cloud-to-local keep-target installs missing and preserves conflicts' -Body { Test-CloudKeepTarget }
+    Invoke-Test -Name 'cloud-to-local source-wins backs up conflicts and is idempotent' -Body { Test-CloudSourceWinsAndIdempotence }
+    Invoke-Test -Name 'cloud-to-local rejects a stale plan before writing' -Body { Test-CloudRejectsStalePlan }
+    Invoke-Test -Name 'root installer dry run delegates without writing targets' -Body { Test-RootInstallerDryRun }
 }
 if ($TestGroup -in @('All', 'LocalToCloud')) {
     Invoke-Test -Name 'local-to-cloud rejects an unimplemented safe upload path' -Body { throw 'LocalToCloud behavior is not implemented.' }
