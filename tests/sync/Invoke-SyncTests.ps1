@@ -138,6 +138,29 @@ function Invoke-Engine {
     return @($output)
 }
 
+function Initialize-TestGitRemote {
+    param(
+        [Parameter(Mandatory)][string]$RepositoryRoot,
+        [Parameter(Mandatory)][string]$BareRemoteRoot
+    )
+
+    & git -C $RepositoryRoot init -b main | Out-Null
+    & git -C $RepositoryRoot config user.name 'Codex Sync Test'
+    & git -C $RepositoryRoot config user.email 'codex-sync-test@example.invalid'
+    & git -C $RepositoryRoot add --all
+    & git -C $RepositoryRoot commit -m 'Initial package' | Out-Null
+    & git init --bare $BareRemoteRoot | Out-Null
+    & git -C $RepositoryRoot remote add origin $BareRemoteRoot
+    & git -C $RepositoryRoot push -u origin main | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        throw 'Failed to initialize the temporary Git remote.'
+    }
+    & git --git-dir $BareRemoteRoot symbolic-ref HEAD refs/heads/main
+    if ($LASTEXITCODE -ne 0) {
+        throw 'Failed to set the temporary remote default branch.'
+    }
+}
+
 function Get-PlanItem {
     param(
         $Plan,
@@ -282,6 +305,169 @@ function Test-RootInstallerDryRun {
     }
 }
 
+function Test-LocalToCloudSourceWins {
+    $testRoot = New-TestRoot
+    try {
+        $repository = New-TestPackage -Root (Join-Path $testRoot 'repository')
+        $userRoot = New-TestUserRoot -Root (Join-Path $testRoot 'user') -PackageRoot $repository
+        $remote = Join-Path $testRoot 'remote.git'
+        Initialize-TestGitRemote -RepositoryRoot $repository -BareRemoteRoot $remote
+        $planPath = Join-Path $testRoot 'plan.json'
+        $reportPath = Join-Path $testRoot 'report.json'
+
+        Invoke-Engine -Arguments @('-Mode','Plan','-Direction','LocalToCloud','-RepoUrl',$remote,'-RepoRoot',$repository,'-TargetUserRoot',$userRoot,'-WorkspaceRoot',(Join-Path $testRoot 'workspace'),'-PlanPath',$planPath,'-ReportPath',$reportPath) | Out-Null
+        $plan = Get-Content -Raw -LiteralPath $planPath | ConvertFrom-Json
+        Assert-Equal (Get-PlanItem -Plan $plan -Identity 'codex/identical-skill').classification 'identical' 'LocalToCloud identical classification'
+        Assert-Equal (Get-PlanItem -Plan $plan -Identity 'codex/conflict-skill').classification 'conflict' 'LocalToCloud conflict classification'
+        Assert-Equal (Get-PlanItem -Plan $plan -Identity 'codex/extra-skill').classification 'add' 'LocalToCloud add classification'
+        Assert-Equal (Get-PlanItem -Plan $plan -Identity 'codex/missing-skill').classification 'extra' 'LocalToCloud extra classification'
+
+        Invoke-Engine -Arguments @('-Mode','Apply','-Direction','LocalToCloud','-Decision','SourceWins','-RepoUrl',$remote,'-RepoRoot',$repository,'-TargetUserRoot',$userRoot,'-WorkspaceRoot',(Join-Path $testRoot 'workspace'),'-PlanPath',$planPath,'-ReportPath',$reportPath) | Out-Null
+        Assert-Equal (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $repository 'skills\codex\conflict-skill\SKILL.md')).Hash (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $userRoot '.codex\skills\conflict-skill\SKILL.md')).Hash 'LocalToCloud SourceWins did not update conflict.'
+        Assert-True (Test-Path -LiteralPath (Join-Path $repository 'skills\codex\extra-skill\SKILL.md')) 'LocalToCloud did not add a local-only skill.'
+        $report = Get-Content -Raw -LiteralPath $reportPath | ConvertFrom-Json
+        Assert-True ($report.gitCommit -match '^[a-f0-9]{40}$') 'LocalToCloud report lacks a Git commit.'
+        Assert-Equal (& git --git-dir $remote rev-parse refs/heads/main) $report.gitCommit 'Temporary remote was not pushed to the reported commit.'
+    }
+    finally {
+        if (Test-Path -LiteralPath $testRoot) {
+            Remove-Item -LiteralPath $testRoot -Recurse -Force
+        }
+    }
+}
+
+function Test-LocalToCloudBlocksSensitiveContent {
+    $testRoot = New-TestRoot
+    try {
+        $repository = New-TestPackage -Root (Join-Path $testRoot 'repository')
+        $userRoot = New-TestUserRoot -Root (Join-Path $testRoot 'user') -PackageRoot $repository
+        Copy-TestTree -Source (Join-Path $fixtureRoot 'fake-secret-skill') -Destination (Join-Path $userRoot '.codex\skills\fake-secret-skill')
+        Write-Utf8File -Path (Join-Path $userRoot '.codex\skills\fake-secret-skill\config.toml') -Content 'excluded = true'
+        $remote = Join-Path $testRoot 'remote.git'
+        Initialize-TestGitRemote -RepositoryRoot $repository -BareRemoteRoot $remote
+        $planPath = Join-Path $testRoot 'plan.json'
+        $reportPath = Join-Path $testRoot 'report.json'
+
+        Invoke-Engine -Arguments @('-Mode','Plan','-Direction','LocalToCloud','-RepoUrl',$remote,'-RepoRoot',$repository,'-TargetUserRoot',$userRoot,'-WorkspaceRoot',(Join-Path $testRoot 'workspace'),'-PlanPath',$planPath,'-ReportPath',$reportPath) -ExpectedExitCode 2 | Out-Null
+        $plan = Get-Content -Raw -LiteralPath $planPath | ConvertFrom-Json
+        Assert-True (@($plan.blockers | Where-Object { $_.ruleId -eq 'SENSITIVE_CONTENT' }).Count -ge 1) 'Token-like content was not blocked.'
+        Assert-True (@($plan.blockers | Where-Object { $_.ruleId -eq 'EXCLUDED_CONFIG' }).Count -eq 1) 'Nested config.toml was not blocked.'
+        Assert-True (($plan.blockers | ConvertTo-Json -Depth 10) -notmatch 'github_pat_TESTONLY') 'Blocker report leaked the token-like value.'
+    }
+    finally {
+        if (Test-Path -LiteralPath $testRoot) {
+            Remove-Item -LiteralPath $testRoot -Recurse -Force
+        }
+    }
+}
+
+function Test-LocalToCloudDeduplicatesExactSkills {
+    $testRoot = New-TestRoot
+    try {
+        $repository = New-TestPackage -Root (Join-Path $testRoot 'repository')
+        $userRoot = New-TestUserRoot -Root (Join-Path $testRoot 'user') -PackageRoot $repository
+        $duplicateSource = New-TestSkill -Root (Join-Path $userRoot '.codex\skills') -Name 'duplicated-skill' -Marker 'exact duplicate'
+        Copy-TestTree -Source $duplicateSource -Destination (Join-Path $userRoot '.agents\skills\duplicated-skill')
+        $remote = Join-Path $testRoot 'remote.git'
+        Initialize-TestGitRemote -RepositoryRoot $repository -BareRemoteRoot $remote
+        $planPath = Join-Path $testRoot 'plan.json'
+
+        Invoke-Engine -Arguments @('-Mode','Plan','-Direction','LocalToCloud','-RepoUrl',$remote,'-RepoRoot',$repository,'-TargetUserRoot',$userRoot,'-WorkspaceRoot',(Join-Path $testRoot 'workspace'),'-PlanPath',$planPath,'-ReportPath',(Join-Path $testRoot 'report.json')) | Out-Null
+        $plan = Get-Content -Raw -LiteralPath $planPath | ConvertFrom-Json
+        Assert-Equal $plan.summary.'deduplicated-source' 1 'Exact Codex/Agent duplicate was not deduplicated.'
+        Assert-True (@($plan.restoreEntries | Where-Object { $_.destinationRoot -eq 'agents' -and $_.skillName -eq 'duplicated-skill' }).Count -eq 1) 'Restore mapping for exact Agent duplicate is missing.'
+    }
+    finally {
+        if (Test-Path -LiteralPath $testRoot) {
+            Remove-Item -LiteralPath $testRoot -Recurse -Force
+        }
+    }
+}
+
+function Test-LocalToCloudRejectsRemoteChange {
+    $testRoot = New-TestRoot
+    try {
+        $repository = New-TestPackage -Root (Join-Path $testRoot 'repository')
+        $userRoot = New-TestUserRoot -Root (Join-Path $testRoot 'user') -PackageRoot $repository
+        $remote = Join-Path $testRoot 'remote.git'
+        Initialize-TestGitRemote -RepositoryRoot $repository -BareRemoteRoot $remote
+        $planPath = Join-Path $testRoot 'plan.json'
+        $reportPath = Join-Path $testRoot 'report.json'
+        Invoke-Engine -Arguments @('-Mode','Plan','-Direction','LocalToCloud','-RepoUrl',$remote,'-RepoRoot',$repository,'-TargetUserRoot',$userRoot,'-WorkspaceRoot',(Join-Path $testRoot 'workspace'),'-PlanPath',$planPath,'-ReportPath',$reportPath) | Out-Null
+
+        $otherClone = Join-Path $testRoot 'other-clone'
+        & git clone $remote $otherClone | Out-Null
+        & git -C $otherClone config user.name 'Concurrent Test'
+        & git -C $otherClone config user.email 'concurrent@example.invalid'
+        Write-Utf8File -Path (Join-Path $otherClone 'concurrent.txt') -Content 'remote advanced'
+        & git -C $otherClone add concurrent.txt
+        & git -C $otherClone commit -m 'Concurrent change' | Out-Null
+        & git -C $otherClone push origin main | Out-Null
+
+        Invoke-Engine -Arguments @('-Mode','Apply','-Direction','LocalToCloud','-Decision','SourceWins','-RepoUrl',$remote,'-RepoRoot',$repository,'-TargetUserRoot',$userRoot,'-WorkspaceRoot',(Join-Path $testRoot 'workspace'),'-PlanPath',$planPath,'-ReportPath',$reportPath) -ExpectedExitCode 3 | Out-Null
+        Assert-True (-not (Test-Path -LiteralPath (Join-Path $repository 'skills\codex\extra-skill'))) 'Stale remote plan wrote local-only content.'
+    }
+    finally {
+        if (Test-Path -LiteralPath $testRoot) {
+            Remove-Item -LiteralPath $testRoot -Recurse -Force
+        }
+    }
+}
+
+function Test-ManagedWorkspaceClone {
+    $testRoot = New-TestRoot
+    try {
+        $seedRepository = New-TestPackage -Root (Join-Path $testRoot 'seed-repository')
+        $userRoot = New-TestUserRoot -Root (Join-Path $testRoot 'user') -PackageRoot $seedRepository
+        $remote = Join-Path $testRoot 'remote.git'
+        Initialize-TestGitRemote -RepositoryRoot $seedRepository -BareRemoteRoot $remote
+        $workspace = Join-Path $testRoot 'workspace'
+        $planPath = Join-Path $testRoot 'plan.json'
+
+        Invoke-Engine -Arguments @('-Mode','Plan','-Direction','LocalToCloud','-RepoUrl',$remote,'-TargetUserRoot',$userRoot,'-WorkspaceRoot',$workspace,'-PlanPath',$planPath,'-ReportPath',(Join-Path $testRoot 'report.json')) | Out-Null
+        $managedRepository = Join-Path $workspace 'chatgpt-work-skills-backup'
+        Assert-True (Test-Path -LiteralPath (Join-Path $managedRepository '.git')) 'Managed workspace was not cloned.'
+        $plan = Get-Content -Raw -LiteralPath $planPath | ConvertFrom-Json
+        Assert-True ($plan.remoteCommit -match '^[a-f0-9]{40}$') 'Managed workspace plan lacks the remote commit.'
+    }
+    finally {
+        if (Test-Path -LiteralPath $testRoot) {
+            Remove-Item -LiteralPath $testRoot -Recurse -Force
+        }
+    }
+}
+
+function Test-LocalToCloudRetainsCommitWhenPushRejected {
+    $testRoot = New-TestRoot
+    try {
+        $repository = New-TestPackage -Root (Join-Path $testRoot 'repository')
+        $userRoot = New-TestUserRoot -Root (Join-Path $testRoot 'user') -PackageRoot $repository
+        $remote = Join-Path $testRoot 'remote.git'
+        Initialize-TestGitRemote -RepositoryRoot $repository -BareRemoteRoot $remote
+        $remoteBefore = (& git --git-dir $remote rev-parse refs/heads/main).Trim()
+        $planPath = Join-Path $testRoot 'plan.json'
+        $reportPath = Join-Path $testRoot 'report.json'
+
+        Invoke-Engine -Arguments @('-Mode','Plan','-Direction','LocalToCloud','-RepoUrl',$remote,'-RepoRoot',$repository,'-TargetUserRoot',$userRoot,'-WorkspaceRoot',(Join-Path $testRoot 'workspace'),'-PlanPath',$planPath,'-ReportPath',$reportPath) | Out-Null
+        Write-Utf8File -Path (Join-Path $remote 'hooks\pre-receive') -Content "#!/bin/sh`nexit 1`n"
+
+        Invoke-Engine -Arguments @('-Mode','Apply','-Direction','LocalToCloud','-Decision','SourceWins','-RepoUrl',$remote,'-RepoRoot',$repository,'-TargetUserRoot',$userRoot,'-WorkspaceRoot',(Join-Path $testRoot 'workspace'),'-PlanPath',$planPath,'-ReportPath',$reportPath) -ExpectedExitCode 4 | Out-Null
+        $report = Get-Content -Raw -LiteralPath $reportPath | ConvertFrom-Json
+        $localHead = (& git -C $repository rev-parse HEAD).Trim()
+        Assert-Equal $report.state 'failed' 'Rejected push report state'
+        Assert-Equal $report.gitCommit $localHead 'Rejected push report did not retain the local commit identity'
+        Assert-True (Test-Path -LiteralPath (Join-Path $repository 'skills\codex\extra-skill\SKILL.md')) 'Rejected push rolled back files from the retained commit.'
+        Assert-Equal @($report.rollback).Count 0 'Rejected push performed a file rollback after committing.'
+        Assert-Equal (& git --git-dir $remote rev-parse refs/heads/main) $remoteBefore 'Rejected push changed the remote branch.'
+        Assert-Equal @(& git -C $repository status --porcelain).Count 0 'Rejected push left the repository dirty.'
+    }
+    finally {
+        if (Test-Path -LiteralPath $testRoot) {
+            Remove-Item -LiteralPath $testRoot -Recurse -Force
+        }
+    }
+}
+
 function Test-RepositoryContract {
     Assert-True (Test-Path -LiteralPath (Join-Path $repoRoot 'restore-map.json')) 'restore-map.json must exist.'
     $physical = @(Get-ChildItem -LiteralPath (Join-Path $repoRoot 'skills'), (Join-Path $repoRoot 'plugins\medical-manuscript-workflow\skills') -Filter 'SKILL.md' -File -Recurse -Force)
@@ -310,7 +496,12 @@ if ($TestGroup -in @('All', 'CloudToLocal')) {
     Invoke-Test -Name 'root installer dry run delegates without writing targets' -Body { Test-RootInstallerDryRun }
 }
 if ($TestGroup -in @('All', 'LocalToCloud')) {
-    Invoke-Test -Name 'local-to-cloud rejects an unimplemented safe upload path' -Body { throw 'LocalToCloud behavior is not implemented.' }
+    Invoke-Test -Name 'local-to-cloud source-wins commits and pushes through a temporary remote' -Body { Test-LocalToCloudSourceWins }
+    Invoke-Test -Name 'local-to-cloud blocks token-like content and excluded configuration' -Body { Test-LocalToCloudBlocksSensitiveContent }
+    Invoke-Test -Name 'local-to-cloud creates a restore map for exact skill duplicates' -Body { Test-LocalToCloudDeduplicatesExactSkills }
+    Invoke-Test -Name 'local-to-cloud rejects a plan after the remote advances' -Body { Test-LocalToCloudRejectsRemoteChange }
+    Invoke-Test -Name 'local-to-cloud clones a managed workspace when RepoRoot is omitted' -Body { Test-ManagedWorkspaceClone }
+    Invoke-Test -Name 'local-to-cloud retains its commit when the remote rejects a push' -Body { Test-LocalToCloudRetainsCommitWhenPushRejected }
 }
 if ($TestGroup -in @('All', 'Repository')) {
     Invoke-Test -Name 'repository is deduplicated and mapped' -Body { Test-RepositoryContract }
