@@ -6,6 +6,8 @@ $ErrorActionPreference = 'Stop'
 
 $repoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $errors = [System.Collections.Generic.List[string]]::new()
+$engine = Join-Path $repoRoot 'skills\codex\syncing-codex-skills-and-plugins\scripts\sync-codex-assets.ps1'
+$engineSummary = $null
 
 function Add-CheckError {
     param([string]$Message)
@@ -30,6 +32,61 @@ function Test-SkillRoot {
         $skillFile = Join-Path $_.FullName 'SKILL.md'
         if (-not (Test-Path -LiteralPath $skillFile)) {
             Add-CheckError "Missing SKILL.md: $($_.FullName)"
+        }
+    }
+}
+
+if (-not (Test-Path -LiteralPath $engine -PathType Leaf)) {
+    Add-CheckError "Missing sync engine: $engine"
+}
+else {
+    $verifyTempRoot = Join-Path ([IO.Path]::GetTempPath()) ("codex-package-verify-" + [guid]::NewGuid().ToString('N'))
+    $verifyReport = Join-Path $verifyTempRoot 'verify-report.json'
+    try {
+        New-Item -ItemType Directory -Path $verifyTempRoot -Force | Out-Null
+        & pwsh -NoProfile -File $engine `
+            -Mode Verify `
+            -Direction CloudToLocal `
+            -RepoRoot $repoRoot `
+            -TargetUserRoot $verifyTempRoot `
+            -WorkspaceRoot (Join-Path $verifyTempRoot 'workspace') `
+            -ReportPath $verifyReport | Out-Null
+        if ($LASTEXITCODE -ne 0) {
+            $engineErrors = if (Test-Path -LiteralPath $verifyReport) {
+                @((Get-Content -Raw -LiteralPath $verifyReport | ConvertFrom-Json).errors) -join '; '
+            }
+            else {
+                'No engine report was created.'
+            }
+            Add-CheckError "Sync-engine verification failed: $engineErrors"
+        }
+        else {
+            $engineSummary = (Get-Content -Raw -LiteralPath $verifyReport | ConvertFrom-Json).summary
+        }
+    }
+    finally {
+        $resolvedTemp = [IO.Path]::GetFullPath($verifyTempRoot)
+        $resolvedSystemTemp = [IO.Path]::GetFullPath([IO.Path]::GetTempPath()).TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
+        if ($resolvedTemp.StartsWith($resolvedSystemTemp, [StringComparison]::OrdinalIgnoreCase) -and (Test-Path -LiteralPath $resolvedTemp)) {
+            Remove-Item -LiteralPath $resolvedTemp -Recurse -Force
+        }
+    }
+}
+
+$inventoryPath = Join-Path $repoRoot 'inventory.json'
+if (-not (Test-Path -LiteralPath $inventoryPath -PathType Leaf)) {
+    Add-CheckError "Missing inventory: $inventoryPath"
+}
+elseif ($null -ne $engineSummary) {
+    $inventory = Get-Content -Raw -LiteralPath $inventoryPath | ConvertFrom-Json
+    foreach ($comparison in @(
+        [pscustomobject]@{ name = 'physicalSkillSources'; actual = $engineSummary.physicalSkills }
+        [pscustomobject]@{ name = 'restoreTargets'; actual = $engineSummary.restoreTargets }
+        [pscustomobject]@{ name = 'logicalCodexSkills'; actual = $engineSummary.logicalCodexSkills }
+        [pscustomobject]@{ name = 'logicalAgentSkills'; actual = $engineSummary.logicalAgentSkills }
+    )) {
+        if ($inventory.counts.($comparison.name) -ne $comparison.actual) {
+            Add-CheckError "Inventory count mismatch for $($comparison.name): expected $($inventory.counts.($comparison.name)), actual $($comparison.actual)"
         }
     }
 }
@@ -70,10 +127,15 @@ else {
 
 $hashPath = Join-Path $repoRoot 'SHA256SUMS.txt'
 if (Test-Path -LiteralPath $hashPath) {
+    $hashedPaths = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
     Get-Content -LiteralPath $hashPath | ForEach-Object {
         if ($_ -match '^([A-Fa-f0-9]{64}) \*(.+)$') {
             $expected = $Matches[1].ToUpperInvariant()
-            $relativePath = $Matches[2].Replace('/', [IO.Path]::DirectorySeparatorChar)
+            $manifestPath = $Matches[2].Replace('\', '/')
+            if (-not $hashedPaths.Add($manifestPath)) {
+                Add-CheckError "Duplicate hash entry: $manifestPath"
+            }
+            $relativePath = $manifestPath.Replace('/', [IO.Path]::DirectorySeparatorChar)
             $filePath = Join-Path $repoRoot $relativePath
             if (-not (Test-Path -LiteralPath $filePath)) {
                 Add-CheckError "Missing hashed file: $relativePath"
@@ -93,6 +155,14 @@ if (Test-Path -LiteralPath $hashPath) {
             Add-CheckError "Invalid hash line: $_"
         }
     }
+    Get-ChildItem -LiteralPath $repoRoot -File -Recurse -Force | Where-Object {
+        $_.FullName -notmatch '\\.git\\' -and $_.FullName -ne $hashPath
+    } | ForEach-Object {
+        $relative = [IO.Path]::GetRelativePath($repoRoot, $_.FullName).Replace('\', '/')
+        if (-not $hashedPaths.Contains($relative)) {
+            Add-CheckError "Unhashed package file: $relative"
+        }
+    }
 }
 else {
     Add-CheckError "Missing hash manifest: $hashPath"
@@ -103,7 +173,6 @@ if ($errors.Count -gt 0) {
     exit 1
 }
 
-$skillCount = (Get-ChildItem -LiteralPath (Join-Path $repoRoot 'skills') -Filter 'SKILL.md' -File -Recurse -Force).Count
 $fileCount = (Get-ChildItem -LiteralPath $repoRoot -File -Recurse -Force | Where-Object { $_.FullName -notmatch '\\.git\\' }).Count
-Write-Host "Verification passed: $skillCount skills, $fileCount package files."
+Write-Host "Verification passed: $($engineSummary.physicalSkills) physical skills, $($engineSummary.restoreTargets) restore targets, $($engineSummary.logicalCodexSkills) logical Codex skills, $($engineSummary.logicalAgentSkills) logical Agent skills, $fileCount package files."
 exit 0

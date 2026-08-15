@@ -48,7 +48,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 $plan = Get-Content -Raw -LiteralPath $planPath | ConvertFrom-Json
-Write-Step "Plan: add=$($plan.summary.add), identical=$($plan.summary.identical), conflict=$($plan.summary.conflict), extra=$($plan.summary.extra)."
+Write-Step "Plan: add=$($plan.summary.add), identical=$($plan.summary.identical), conflict=$($plan.summary.conflict), extra=$($plan.summary.extra), deduplicated-source=$($plan.summary.'deduplicated-source'), blocked=$($plan.summary.blocked)."
 if ($plan.summary.conflict -gt 0) {
     Write-Step 'Conflicting local items will be preserved. Invoke the sync skill for a source-wins confirmation.'
 }

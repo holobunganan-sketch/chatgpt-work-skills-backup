@@ -580,6 +580,53 @@ function Test-RepositoryContract {
     }
 }
 
+function Test-EngineVerifyRepository {
+    $testRoot = New-TestRoot
+    try {
+        $reportPath = Join-Path $testRoot 'verify-report.json'
+        Invoke-Engine -Arguments @('-Mode','Verify','-Direction','CloudToLocal','-RepoRoot',$repoRoot,'-TargetUserRoot',(Join-Path $testRoot 'user'),'-WorkspaceRoot',(Join-Path $testRoot 'workspace'),'-ReportPath',$reportPath) | Out-Null
+        $report = Get-Content -Raw -LiteralPath $reportPath | ConvertFrom-Json
+        Assert-Equal $report.state 'verified' 'Repository verify state'
+        Assert-Equal $report.summary.physicalSkills 49 'Repository verify physical skill count'
+        Assert-Equal $report.summary.restoreTargets 26 'Repository verify restore target count'
+        Assert-Equal $report.summary.logicalCodexSkills 37 'Repository verify logical Codex count'
+        Assert-Equal $report.summary.logicalAgentSkills 26 'Repository verify logical Agent count'
+        Assert-True (Test-Path -LiteralPath (Join-Path $testRoot "user\.codex\sync-reports\$($report.runId).json")) 'Repository verify did not archive a run-id report.'
+    }
+    finally {
+        if (Test-Path -LiteralPath $testRoot) {
+            Remove-Item -LiteralPath $testRoot -Recurse -Force
+        }
+    }
+}
+
+function Test-EngineVerifyRejectsInvalidRestoreMap {
+    $testRoot = New-TestRoot
+    try {
+        $package = New-TestPackage -Root (Join-Path $testRoot 'package')
+        $map = [ordered]@{
+            schemaVersion = 1
+            entries = @([ordered]@{
+                source = 'skills/codex/identical-skill'
+                destinationRoot = 'agents'
+                skillName = 'mapped-skill'
+                sourceTreeHash = ('0' * 64)
+            })
+        }
+        Write-Utf8File -Path (Join-Path $package 'restore-map.json') -Content (($map | ConvertTo-Json -Depth 10) + "`n")
+        $reportPath = Join-Path $testRoot 'verify-report.json'
+        Invoke-Engine -Arguments @('-Mode','Verify','-Direction','CloudToLocal','-RepoRoot',$package,'-TargetUserRoot',(Join-Path $testRoot 'user'),'-WorkspaceRoot',(Join-Path $testRoot 'workspace'),'-ReportPath',$reportPath) -ExpectedExitCode 2 | Out-Null
+        $report = Get-Content -Raw -LiteralPath $reportPath | ConvertFrom-Json
+        Assert-Equal $report.state 'blocked' 'Invalid restore-map verify state'
+        Assert-True (@($report.errors | Where-Object { $_ -match 'hash mismatch' }).Count -eq 1) 'Invalid restore-map hash was not reported.'
+    }
+    finally {
+        if (Test-Path -LiteralPath $testRoot) {
+            Remove-Item -LiteralPath $testRoot -Recurse -Force
+        }
+    }
+}
+
 function Test-SkillContract {
     $skillRoot = Join-Path $repoRoot 'skills\codex\syncing-codex-skills-and-plugins'
     Assert-True (Test-Path -LiteralPath (Join-Path $skillRoot 'SKILL.md')) 'SKILL.md must exist.'
@@ -612,6 +659,8 @@ if ($TestGroup -in @('All', 'LocalToCloud')) {
 }
 if ($TestGroup -in @('All', 'Repository')) {
     Invoke-Test -Name 'repository is deduplicated and mapped' -Body { Test-RepositoryContract }
+    Invoke-Test -Name 'engine verify reports repository physical and logical counts' -Body { Test-EngineVerifyRepository }
+    Invoke-Test -Name 'engine verify rejects an invalid restore-map hash' -Body { Test-EngineVerifyRejectsInvalidRestoreMap }
 }
 if ($TestGroup -in @('All', 'SkillContract')) {
     Invoke-Test -Name 'skill package contains required files' -Body { Test-SkillContract }

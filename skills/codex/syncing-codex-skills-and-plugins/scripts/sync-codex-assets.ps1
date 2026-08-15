@@ -585,6 +585,20 @@ function Write-JsonUtf8 {
     [IO.File]::WriteAllText($fullPath, (($Value | ConvertTo-Json -Depth 50) + "`n"), $script:Utf8NoBom)
 }
 
+function Write-SyncReport {
+    param(
+        [Parameter(Mandatory)]$Report,
+        [Parameter(Mandatory)][string]$Path,
+        [Parameter(Mandatory)][string]$UserRoot
+    )
+
+    Write-JsonUtf8 -Value $Report -Path $Path
+    $archivePath = Join-Path $UserRoot ".codex\sync-reports\$($Report.runId).json"
+    if ([IO.Path]::GetFullPath($archivePath) -ne [IO.Path]::GetFullPath($Path)) {
+        Write-JsonUtf8 -Value $Report -Path $archivePath
+    }
+}
+
 function Write-FinalizedPlan {
     param(
         [Parameter(Mandatory)]$Plan,
@@ -794,7 +808,7 @@ function Invoke-CloudToLocalApply {
     if ($ApplyDecision -eq 'Cancel') {
         $report.state = 'cancelled'
         $report.completedAt = [DateTimeOffset]::UtcNow.ToString('o')
-        Write-JsonUtf8 -Value $report -Path $OutputReportPath
+        Write-SyncReport -Report $report -Path $OutputReportPath -UserRoot $UserRoot
         return [pscustomobject]@{ ExitCode = 2; Report = $report }
     }
 
@@ -803,7 +817,7 @@ function Invoke-CloudToLocalApply {
         $report.state = 'stale'
         $report.staleReasons = $staleReasons
         $report.completedAt = [DateTimeOffset]::UtcNow.ToString('o')
-        Write-JsonUtf8 -Value $report -Path $OutputReportPath
+        Write-SyncReport -Report $report -Path $OutputReportPath -UserRoot $UserRoot
         return [pscustomobject]@{ ExitCode = 3; Report = $report }
     }
 
@@ -856,7 +870,7 @@ function Invoke-CloudToLocalApply {
         $report.state = 'applied'
         $report.actions = @($actions)
         $report.completedAt = [DateTimeOffset]::UtcNow.ToString('o')
-        Write-JsonUtf8 -Value $report -Path $OutputReportPath
+        Write-SyncReport -Report $report -Path $OutputReportPath -UserRoot $UserRoot
         return [pscustomobject]@{ ExitCode = 0; Report = $report }
     }
     catch {
@@ -879,7 +893,7 @@ function Invoke-CloudToLocalApply {
         $report.errors = @($_.Exception.Message)
         $report.rollback = @($rollback)
         $report.completedAt = [DateTimeOffset]::UtcNow.ToString('o')
-        Write-JsonUtf8 -Value $report -Path $OutputReportPath
+        Write-SyncReport -Report $report -Path $OutputReportPath -UserRoot $UserRoot
         return [pscustomobject]@{ ExitCode = 4; Report = $report }
     }
 }
@@ -890,6 +904,7 @@ function Invoke-LocalToCloudApply {
         [Parameter(Mandatory)][string]$ApplyDecision,
         [Parameter(Mandatory)][string]$RepositoryRoot,
         [Parameter(Mandatory)][string]$SyncWorkspaceRoot,
+        [Parameter(Mandatory)][string]$UserRoot,
         [Parameter(Mandatory)][string]$OutputReportPath
     )
 
@@ -897,14 +912,14 @@ function Invoke-LocalToCloudApply {
     if ($ApplyDecision -eq 'Cancel') {
         $report.state = 'cancelled'
         $report.completedAt = [DateTimeOffset]::UtcNow.ToString('o')
-        Write-JsonUtf8 -Value $report -Path $OutputReportPath
+        Write-SyncReport -Report $report -Path $OutputReportPath -UserRoot $UserRoot
         return [pscustomobject]@{ ExitCode = 2; Report = $report }
     }
     if (@($Plan.blockers).Count -gt 0) {
         $report.state = 'blocked'
         $report.errors = @($Plan.blockers | ForEach-Object { "$($_.ruleId):$($_.path)" })
         $report.completedAt = [DateTimeOffset]::UtcNow.ToString('o')
-        Write-JsonUtf8 -Value $report -Path $OutputReportPath
+        Write-SyncReport -Report $report -Path $OutputReportPath -UserRoot $UserRoot
         return [pscustomobject]@{ ExitCode = 2; Report = $report }
     }
 
@@ -913,7 +928,7 @@ function Invoke-LocalToCloudApply {
         $report.state = 'stale'
         $report.staleReasons = @('remote:origin/main')
         $report.completedAt = [DateTimeOffset]::UtcNow.ToString('o')
-        Write-JsonUtf8 -Value $report -Path $OutputReportPath
+        Write-SyncReport -Report $report -Path $OutputReportPath -UserRoot $UserRoot
         return [pscustomobject]@{ ExitCode = 3; Report = $report }
     }
     $staleReasons = @(Get-StalePlanReasons -Plan $Plan)
@@ -921,7 +936,7 @@ function Invoke-LocalToCloudApply {
         $report.state = 'stale'
         $report.staleReasons = $staleReasons
         $report.completedAt = [DateTimeOffset]::UtcNow.ToString('o')
-        Write-JsonUtf8 -Value $report -Path $OutputReportPath
+        Write-SyncReport -Report $report -Path $OutputReportPath -UserRoot $UserRoot
         return [pscustomobject]@{ ExitCode = 3; Report = $report }
     }
 
@@ -930,7 +945,7 @@ function Invoke-LocalToCloudApply {
         $report.state = 'blocked'
         $report.errors = @('Repository working tree is not clean.')
         $report.completedAt = [DateTimeOffset]::UtcNow.ToString('o')
-        Write-JsonUtf8 -Value $report -Path $OutputReportPath
+        Write-SyncReport -Report $report -Path $OutputReportPath -UserRoot $UserRoot
         return [pscustomobject]@{ ExitCode = 2; Report = $report }
     }
 
@@ -1022,7 +1037,7 @@ function Invoke-LocalToCloudApply {
         $report.state = 'applied'
         $report.actions = @($actions)
         $report.completedAt = [DateTimeOffset]::UtcNow.ToString('o')
-        Write-JsonUtf8 -Value $report -Path $OutputReportPath
+        Write-SyncReport -Report $report -Path $OutputReportPath -UserRoot $UserRoot
         return [pscustomobject]@{ ExitCode = 0; Report = $report }
     }
     catch {
@@ -1048,8 +1063,101 @@ function Invoke-LocalToCloudApply {
         $report.errors = @($_.Exception.Message)
         $report.rollback = @($rollback)
         $report.completedAt = [DateTimeOffset]::UtcNow.ToString('o')
-        Write-JsonUtf8 -Value $report -Path $OutputReportPath
+        Write-SyncReport -Report $report -Path $OutputReportPath -UserRoot $UserRoot
         return [pscustomobject]@{ ExitCode = 4; Report = $report }
+    }
+}
+
+function Invoke-RepositoryVerify {
+    param(
+        [Parameter(Mandatory)][string]$PackageRoot,
+        [Parameter(Mandatory)][string]$UserRoot,
+        [Parameter(Mandatory)][string]$OutputReportPath
+    )
+
+    $report = [pscustomobject][ordered]@{
+        schemaVersion = 1
+        runId = [guid]::NewGuid().ToString('N')
+        state = 'verifying'
+        direction = $Direction
+        startedAt = [DateTimeOffset]::UtcNow.ToString('o')
+        completedAt = $null
+        summary = [pscustomobject][ordered]@{
+            physicalSkills = 0
+            restoreTargets = 0
+            logicalCodexSkills = 0
+            logicalAgentSkills = 0
+            exactDuplicateGroups = 0
+            blocked = 0
+        }
+        errors = @()
+    }
+
+    try {
+        $mapPath = Join-Path $PackageRoot 'restore-map.json'
+        if (-not (Test-Path -LiteralPath $mapPath -PathType Leaf)) {
+            throw 'Missing restore-map.json.'
+        }
+        $restoreMap = Get-Content -Raw -LiteralPath $mapPath | ConvertFrom-Json
+        $report.summary.restoreTargets = @($restoreMap.entries).Count
+
+        $pluginManifest = Join-Path $PackageRoot 'plugins\medical-manuscript-workflow\.codex-plugin\plugin.json'
+        if (-not (Test-Path -LiteralPath $pluginManifest -PathType Leaf)) {
+            throw 'Missing medical-manuscript-workflow plugin manifest.'
+        }
+        $plugin = Get-Content -Raw -LiteralPath $pluginManifest | ConvertFrom-Json
+        if ($plugin.name -ne 'medical-manuscript-workflow') {
+            throw "Unexpected plugin name: $($plugin.name)"
+        }
+        $marketplacePath = Join-Path $PackageRoot 'marketplace\marketplace.json'
+        if ($null -eq (Get-MarketplaceEntry -Path $marketplacePath)) {
+            throw 'Missing medical-manuscript-workflow marketplace entry.'
+        }
+
+        $physicalUnits = [System.Collections.Generic.List[object]]::new()
+        foreach ($definition in @(
+            [pscustomobject]@{ root = Join-Path $PackageRoot 'skills\codex'; label = 'codex' }
+            [pscustomobject]@{ root = Join-Path $PackageRoot 'skills\agents'; label = 'agents' }
+            [pscustomobject]@{ root = Join-Path $PackageRoot 'plugins\medical-manuscript-workflow\skills'; label = 'plugin' }
+        )) {
+            foreach ($unit in Get-DirectoryUnits -Root $definition.root -DestinationRoot $definition.label -RequireSkillManifest) {
+                $physicalUnits.Add($unit)
+            }
+        }
+        $report.summary.physicalSkills = $physicalUnits.Count
+        $exactGroups = @($physicalUnits | Group-Object name | Where-Object {
+            $_.Count -gt 1 -and @($_.Group.hash | Sort-Object -Unique).Count -eq 1
+        })
+        $report.summary.exactDuplicateGroups = $exactGroups.Count
+        if ($exactGroups.Count -gt 0) {
+            throw "Exact physical duplicate skills remain: $((@($exactGroups.Name) -join ', '))"
+        }
+
+        $logicalUnits = @(Get-CloudSourceUnits -PackageRoot $PackageRoot -ExpandRestoreMap)
+        $report.summary.logicalCodexSkills = @($logicalUnits | Where-Object destinationRoot -eq 'codex').Count
+        $report.summary.logicalAgentSkills = @($logicalUnits | Where-Object destinationRoot -eq 'agents').Count
+        $blockers = @(Get-SensitiveContentBlockers -Units $logicalUnits -UserRoot $PackageRoot)
+        $report.summary.blocked = $blockers.Count
+        if ($blockers.Count -gt 0) {
+            $report.state = 'blocked'
+            $report.errors = @($blockers | ForEach-Object { "$($_.ruleId):$($_.path)" })
+            $report.completedAt = [DateTimeOffset]::UtcNow.ToString('o')
+            Write-SyncReport -Report $report -Path $OutputReportPath -UserRoot $UserRoot
+            return [pscustomobject]@{ ExitCode = 2; Report = $report }
+        }
+
+        $report.state = 'verified'
+        $report.completedAt = [DateTimeOffset]::UtcNow.ToString('o')
+        Write-SyncReport -Report $report -Path $OutputReportPath -UserRoot $UserRoot
+        return [pscustomobject]@{ ExitCode = 0; Report = $report }
+    }
+    catch {
+        $report.state = 'blocked'
+        $report.summary.blocked++
+        $report.errors = @($_.Exception.Message)
+        $report.completedAt = [DateTimeOffset]::UtcNow.ToString('o')
+        Write-SyncReport -Report $report -Path $OutputReportPath -UserRoot $UserRoot
+        return [pscustomobject]@{ ExitCode = 2; Report = $report }
     }
 }
 
@@ -1114,6 +1222,13 @@ function Resolve-Inputs {
 
 Resolve-Inputs
 
+if ($Mode -eq 'Verify') {
+    $result = Invoke-RepositoryVerify -PackageRoot $RepoRoot -UserRoot $TargetUserRoot -OutputReportPath $ReportPath
+    Write-Host "Verification state: $($result.Report.state)"
+    Write-Host "physical=$($result.Report.summary.physicalSkills) restore-targets=$($result.Report.summary.restoreTargets) logical-codex=$($result.Report.summary.logicalCodexSkills) logical-agents=$($result.Report.summary.logicalAgentSkills) blocked=$($result.Report.summary.blocked)"
+    exit $result.ExitCode
+}
+
 if ($Mode -eq 'Plan') {
     if ($Direction -eq 'CloudToLocal') {
         $sourceUnits = @(Get-CloudSourceUnits -PackageRoot $RepoRoot -ExpandRestoreMap)
@@ -1139,6 +1254,29 @@ if ($Mode -eq 'Plan') {
     Write-Host "Plan created: $PlanPath"
     Write-Host "add=$($plan.summary.add) identical=$($plan.summary.identical) conflict=$($plan.summary.conflict) extra=$($plan.summary.extra) deduplicated-source=$($plan.summary.'deduplicated-source') blocked=$($plan.summary.blocked)"
     if ($plan.summary.blocked -gt 0) {
+        $blockedReport = [pscustomobject][ordered]@{
+            schemaVersion = 1
+            runId = $plan.runId
+            state = 'blocked'
+            direction = $plan.direction
+            decision = $null
+            planSha256 = $plan.planSha256
+            startedAt = $plan.generatedAt
+            completedAt = [DateTimeOffset]::UtcNow.ToString('o')
+            summary = [pscustomobject][ordered]@{
+                written = 0
+                skipped = 0
+                conflicts = $plan.summary.conflict
+                backups = 0
+            }
+            actions = @()
+            staleReasons = @()
+            errors = @($plan.blockers | ForEach-Object { "$($_.ruleId):$($_.path)" })
+            rollback = @()
+            gitCommit = $null
+            remoteVerified = $false
+        }
+        Write-SyncReport -Report $blockedReport -Path $ReportPath -UserRoot $TargetUserRoot
         exit 2
     }
     exit 0
@@ -1153,11 +1291,11 @@ if ($Mode -eq 'Apply') {
         $result = Invoke-CloudToLocalApply -Plan $plan -ApplyDecision $Decision -UserRoot $TargetUserRoot -OutputReportPath $ReportPath
     }
     else {
-        $result = Invoke-LocalToCloudApply -Plan $plan -ApplyDecision $Decision -RepositoryRoot $RepoRoot -SyncWorkspaceRoot $WorkspaceRoot -OutputReportPath $ReportPath
+        $result = Invoke-LocalToCloudApply -Plan $plan -ApplyDecision $Decision -RepositoryRoot $RepoRoot -SyncWorkspaceRoot $WorkspaceRoot -UserRoot $TargetUserRoot -OutputReportPath $ReportPath
     }
     Write-Host "Sync state: $($result.Report.state)"
     Write-Host "written=$($result.Report.summary.written) skipped=$($result.Report.summary.skipped) conflicts=$($result.Report.summary.conflicts) backups=$($result.Report.summary.backups)"
     exit $result.ExitCode
 }
 
-throw 'Verify mode is not implemented yet.'
+throw "Unsupported mode: $Mode"
