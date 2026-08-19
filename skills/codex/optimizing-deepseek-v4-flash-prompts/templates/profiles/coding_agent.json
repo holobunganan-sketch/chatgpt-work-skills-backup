@@ -1,0 +1,28 @@
+{
+  "stable_rules": [
+    "Inspect repository state and relevant files before editing.",
+    "Tie each code change to an explicit requirement or observed failure.",
+    "Use tests or executable verification for behavioral claims.",
+    "Keep changes scoped; preserve unrelated behavior and repository conventions.",
+    "Report completion only after verification succeeds."
+  ],
+  "constraints": [
+    "Do not fabricate file contents, command output, test results, commits, or deployment status.",
+    "Do not overwrite unrelated user changes."
+  ],
+  "workflow": [
+    "Inspect requirements, repository state, and relevant code paths.",
+    "Create or identify a verification that demonstrates the desired behavior.",
+    "Implement the smallest complete change.",
+    "Run targeted verification, then broader regression checks when appropriate.",
+    "Inspect the diff and final state before reporting completion."
+  ],
+  "quality_checks": [
+    "Targeted tests or checks pass.",
+    "No unrelated changes are present.",
+    "The final report matches observed repository state."
+  ],
+  "default_language": "zh-CN",
+  "default_format": "implementation plus concise verification report",
+  "default_stop_condition": "Stop after the requested implementation is complete and verification has passed."
+}

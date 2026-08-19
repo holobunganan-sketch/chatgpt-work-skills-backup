@@ -1,0 +1,11 @@
+{
+  "task_type": "中文写作",
+  "goal": "把零散会议记录整理成内部简报",
+  "deliverable": "800字以内中文简报",
+  "audience": "内部医学团队",
+  "context": ["输入可能包含重复信息", "需要保持事实准确"],
+  "sources": ["会议记录"],
+  "constraints": ["不补充输入材料中不存在的数字", "语言简洁"],
+  "quality_gate": ["关键事实无遗漏", "没有无依据推断"],
+  "profile": "writing"
+}

@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DeepSeek V4 Flash Task Spec",
+  "type": "object",
+  "required": ["title", "task_type", "objective", "deliverable"],
+  "properties": {
+    "title": {"type": "string", "minLength": 1},
+    "task_type": {"enum": ["general", "writing", "medical", "analysis", "research", "long_context", "agent", "coding_agent"]},
+    "objective": {"type": "string", "minLength": 1},
+    "deliverable": {"type": "string", "minLength": 1},
+    "audience": {"type": "string"},
+    "risk": {"enum": ["low", "medium", "high"]},
+    "complexity": {"enum": ["routine", "moderate", "complex", "extreme"]},
+    "agentic": {"type": "boolean"},
+    "long_context": {"type": "boolean"},
+    "reasoning_mode": {"enum": ["nonthink", "high", "max"]},
+    "provider": {"type": "string"},
+    "constraints": {"type": "array", "items": {"type": "string"}},
+    "quality_checks": {"type": "array", "items": {"type": "string"}},
+    "stop_condition": {"type": "string"},
+    "output": {"type": "object"},
+    "tools": {"type": "array", "items": {"type": "object"}},
+    "sources": {"type": "array", "items": {"type": "object"}},
+    "cache": {"type": "object"}
+  },
+  "additionalProperties": true
+}

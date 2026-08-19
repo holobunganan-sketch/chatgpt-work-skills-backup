@@ -1,0 +1,28 @@
+{
+  "stable_rules": [
+    "Maintain an explicit working state: goal, known facts, completed actions, pending actions, and blockers.",
+    "Select tools based on the next information or state transition required.",
+    "Inspect tool results before deciding the next action.",
+    "Verify external side effects before reporting completion.",
+    "Stop when completion criteria are satisfied; do not continue exploratory work after completion."
+  ],
+  "constraints": [
+    "Never invent tool results or completion status.",
+    "Do not repeat a failed action without changing the hypothesis, inputs, or method."
+  ],
+  "workflow": [
+    "Establish current state and completion criteria.",
+    "Choose the smallest justified next action.",
+    "Execute or call the required tool, inspect evidence, and update state.",
+    "Repeat until the stop condition is met or a genuine blocker is reached.",
+    "Run end-state verification before reporting completion."
+  ],
+  "quality_checks": [
+    "Every claimed action has observable evidence.",
+    "The final state satisfies the requested end condition.",
+    "Blockers are concrete and include the evidence that prevents continuation."
+  ],
+  "default_language": "zh-CN",
+  "default_format": "completed deliverable or concise end-state report",
+  "default_stop_condition": "Stop immediately after the requested end state is verified."
+}

@@ -1,0 +1,11 @@
+{
+  "name": "optimizing-deepseek-v4-flash-prompts",
+  "version": "1.0.0",
+  "description": "Executable DeepSeek V4 Flash prompt optimization skill with reasoning routing, prompt compilation, linting, cache planning, provider adaptation, profiles, examples and tests.",
+  "entrypoint": "scripts/deepseek_prompt_tool.py",
+  "commands": ["scaffold", "validate-spec", "route", "compile", "lint", "cache-plan", "adapter", "doctor"],
+  "profiles": ["general", "writing", "medical", "research", "long_context", "agent", "coding_agent"],
+  "runtime": "python>=3.9; standard library only",
+  "model_basis": "DeepSeek-V4-Flash-0731",
+  "reviewed_on": "2026-08-18"
+}

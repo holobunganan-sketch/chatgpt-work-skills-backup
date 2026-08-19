@@ -1,0 +1,42 @@
+{
+  "skill_target": "DeepSeek V4 Flash",
+  "current_official_release_basis": "DeepSeek-V4-Flash-0731",
+  "api_model_id": "deepseek-v4-flash",
+  "context_length_tokens": 1000000,
+  "max_output_tokens": 384000,
+  "architecture": {
+    "type": "Mixture-of-Experts",
+    "preview_total_parameters": "284B",
+    "preview_activated_parameters": "13B",
+    "attention": ["Compressed Sparse Attention (CSA)", "Heavily Compressed Attention (HCA)"],
+    "connection": "Manifold-Constrained Hyper-Connections (mHC)"
+  },
+  "training": {
+    "pretraining_tokens": "32T+ for V4 series preview",
+    "post_training": [
+      "domain-specific expert cultivation using SFT and RL/GRPO",
+      "unified consolidation via on-policy distillation"
+    ]
+  },
+  "reasoning": {
+    "official_api_thinking_default": true,
+    "supported_efforts": ["high", "max"],
+    "compatibility_mapping": {
+      "low": "high",
+      "medium": "high",
+      "xhigh": "max"
+    },
+    "local_sampling_agentic": {"temperature": 1.0, "top_p": 0.95},
+    "local_sampling_other": {"temperature": 1.0, "top_p": 1.0}
+  },
+  "agent": {
+    "release_0731_focus": "substantially enhanced agentic capabilities",
+    "official_eval_harness": "DeepSeek Harness minimal mode with max reasoning for code-agent benchmarks"
+  },
+  "cache": {
+    "official_api": "disk context caching enabled by default",
+    "match_principle": "reusable exact/fully matched prefix units",
+    "metrics": ["prompt_cache_hit_tokens", "prompt_cache_miss_tokens"]
+  },
+  "reviewed_on": "2026-08-18"
+}

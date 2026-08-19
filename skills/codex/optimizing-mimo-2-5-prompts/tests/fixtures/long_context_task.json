@@ -1,0 +1,11 @@
+{
+  "task_type": "长上下文资料综合",
+  "goal": "整合多个长文档并形成结论",
+  "deliverable": "带来源编号的综合分析",
+  "audience": "项目团队",
+  "context": ["总材料可能超过10万tokens"],
+  "sources": ["[S01] 文档A", "[S02] 文档B", "[S03] 文档C"],
+  "constraints": ["每个关键结论标记来源编号"],
+  "quality_gate": ["处理来源冲突", "避免只依赖上下文末尾"],
+  "profile": "long-context"
+}

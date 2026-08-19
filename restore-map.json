@@ -2,66 +2,6 @@
   "schemaVersion": 1,
   "entries": [
     {
-      "source": "plugins/medical-manuscript-workflow/skills/argument-centered-formal-editor",
-      "destinationRoot": "codex",
-      "skillName": "argument-centered-formal-editor",
-      "sourceTreeHash": "B3253EDA45BC4F909FB9DB510158A8EE04C0AC3015F08CB80722BF47EB923E9A"
-    },
-    {
-      "source": "plugins/medical-manuscript-workflow/skills/cross-artifact-consistency",
-      "destinationRoot": "codex",
-      "skillName": "cross-artifact-consistency",
-      "sourceTreeHash": "8D875E1ED2FBF9203F5B25F013D24BF72884C6D19F8A556E322FCF72F5551F4B"
-    },
-    {
-      "source": "plugins/medical-manuscript-workflow/skills/formal-deliverable-boundary-guard",
-      "destinationRoot": "codex",
-      "skillName": "formal-deliverable-boundary-guard",
-      "sourceTreeHash": "5AABDF42EE91F52CE0774C44BA91836FB9304B5B7BE52D68123A28A75869BAB7"
-    },
-    {
-      "source": "plugins/medical-manuscript-workflow/skills/format-manuscript-delivery",
-      "destinationRoot": "codex",
-      "skillName": "format-manuscript-delivery",
-      "sourceTreeHash": "0351F6E471BD79514AB13A25E4277CD0A04D47BBBDF4AF01D29851AB550D2B33"
-    },
-    {
-      "source": "plugins/medical-manuscript-workflow/skills/human-in-loop-revision",
-      "destinationRoot": "codex",
-      "skillName": "human-in-loop-revision",
-      "sourceTreeHash": "9EA72BD7C71DD8F12D4EBC271EB6BB274C18CB24F68909AF48D1E537A40793B7"
-    },
-    {
-      "source": "plugins/medical-manuscript-workflow/skills/journal-format-reviewer",
-      "destinationRoot": "codex",
-      "skillName": "journal-format-reviewer",
-      "sourceTreeHash": "DCCD5F49A4D40C9CCC31402E161DADF31B88269F9C61E32A016A108150456F5F"
-    },
-    {
-      "source": "plugins/medical-manuscript-workflow/skills/source-pack-builder",
-      "destinationRoot": "codex",
-      "skillName": "source-pack-builder",
-      "sourceTreeHash": "FEC98900D83847A8952448D92904888EE3A00C6AA914930294CDA608E5CC481D"
-    },
-    {
-      "source": "plugins/medical-manuscript-workflow/skills/traceable-release-auditor",
-      "destinationRoot": "codex",
-      "skillName": "traceable-release-auditor",
-      "sourceTreeHash": "70D661148A1AD12B928489023546DCC2C931CAA8D952A7129468F605A04DCD66"
-    },
-    {
-      "source": "plugins/medical-manuscript-workflow/skills/write-evidence-grounded-manuscript",
-      "destinationRoot": "codex",
-      "skillName": "write-evidence-grounded-manuscript",
-      "sourceTreeHash": "AFE1C82B9652D39666ECA1999C85D808C36124F46426C2446782B6A4F8E201E6"
-    },
-    {
-      "source": "plugins/medical-manuscript-workflow/skills/writing-result-centered-discussion",
-      "destinationRoot": "codex",
-      "skillName": "writing-result-centered-discussion",
-      "sourceTreeHash": "01F1D7DEB148FC54D3BD8B4C5EC6E62A66BA6C90B7FCDCE1666CF7C6BC2206AF"
-    },
-    {
       "source": "skills/codex/clinical-decision-support",
       "destinationRoot": "agents",
       "skillName": "clinical-decision-support",
@@ -156,6 +96,66 @@
       "destinationRoot": "agents",
       "skillName": "top-journal-data-plan",
       "sourceTreeHash": "42FD223E3914D12BA66549C4881527822769D99C812A1402AA611E833F47941D"
+    },
+    {
+      "source": "plugins/medical-manuscript-workflow/skills/argument-centered-formal-editor",
+      "destinationRoot": "codex",
+      "skillName": "argument-centered-formal-editor",
+      "sourceTreeHash": "B3253EDA45BC4F909FB9DB510158A8EE04C0AC3015F08CB80722BF47EB923E9A"
+    },
+    {
+      "source": "plugins/medical-manuscript-workflow/skills/cross-artifact-consistency",
+      "destinationRoot": "codex",
+      "skillName": "cross-artifact-consistency",
+      "sourceTreeHash": "8D875E1ED2FBF9203F5B25F013D24BF72884C6D19F8A556E322FCF72F5551F4B"
+    },
+    {
+      "source": "plugins/medical-manuscript-workflow/skills/formal-deliverable-boundary-guard",
+      "destinationRoot": "codex",
+      "skillName": "formal-deliverable-boundary-guard",
+      "sourceTreeHash": "5AABDF42EE91F52CE0774C44BA91836FB9304B5B7BE52D68123A28A75869BAB7"
+    },
+    {
+      "source": "plugins/medical-manuscript-workflow/skills/format-manuscript-delivery",
+      "destinationRoot": "codex",
+      "skillName": "format-manuscript-delivery",
+      "sourceTreeHash": "0351F6E471BD79514AB13A25E4277CD0A04D47BBBDF4AF01D29851AB550D2B33"
+    },
+    {
+      "source": "plugins/medical-manuscript-workflow/skills/human-in-loop-revision",
+      "destinationRoot": "codex",
+      "skillName": "human-in-loop-revision",
+      "sourceTreeHash": "9EA72BD7C71DD8F12D4EBC271EB6BB274C18CB24F68909AF48D1E537A40793B7"
+    },
+    {
+      "source": "plugins/medical-manuscript-workflow/skills/journal-format-reviewer",
+      "destinationRoot": "codex",
+      "skillName": "journal-format-reviewer",
+      "sourceTreeHash": "DCCD5F49A4D40C9CCC31402E161DADF31B88269F9C61E32A016A108150456F5F"
+    },
+    {
+      "source": "plugins/medical-manuscript-workflow/skills/source-pack-builder",
+      "destinationRoot": "codex",
+      "skillName": "source-pack-builder",
+      "sourceTreeHash": "FEC98900D83847A8952448D92904888EE3A00C6AA914930294CDA608E5CC481D"
+    },
+    {
+      "source": "plugins/medical-manuscript-workflow/skills/traceable-release-auditor",
+      "destinationRoot": "codex",
+      "skillName": "traceable-release-auditor",
+      "sourceTreeHash": "70D661148A1AD12B928489023546DCC2C931CAA8D952A7129468F605A04DCD66"
+    },
+    {
+      "source": "plugins/medical-manuscript-workflow/skills/write-evidence-grounded-manuscript",
+      "destinationRoot": "codex",
+      "skillName": "write-evidence-grounded-manuscript",
+      "sourceTreeHash": "AFE1C82B9652D39666ECA1999C85D808C36124F46426C2446782B6A4F8E201E6"
+    },
+    {
+      "source": "plugins/medical-manuscript-workflow/skills/writing-result-centered-discussion",
+      "destinationRoot": "codex",
+      "skillName": "writing-result-centered-discussion",
+      "sourceTreeHash": "01F1D7DEB148FC54D3BD8B4C5EC6E62A66BA6C90B7FCDCE1666CF7C6BC2206AF"
     }
   ]
 }

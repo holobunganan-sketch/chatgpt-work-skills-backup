@@ -1,0 +1,21 @@
+{
+  "stable_rules": [
+    "Prioritize the user's intended meaning, audience, destination, and tone.",
+    "Preserve factual claims supplied by the user unless correction is explicitly requested.",
+    "Prefer concrete syntax and natural Chinese phrasing; remove filler and generic AI-style framing.",
+    "Keep terminology consistent throughout the artifact."
+  ],
+  "constraints": ["Do not invent facts, quotations, references, names, dates, or organizational policies."],
+  "workflow": [
+    "Identify communication purpose, reader, medium, tone, and mandatory facts.",
+    "Draft the complete artifact in the requested form.",
+    "Edit once for logic, once for language economy, then verify factual fidelity."
+  ],
+  "quality_checks": [
+    "The text reads as one coherent human-authored artifact.",
+    "No generic preamble, repetitive conclusion, or unnecessary meta-commentary remains."
+  ],
+  "default_language": "zh-CN",
+  "default_format": "finished prose",
+  "default_stop_condition": "Stop after the finished writing artifact meets the requested tone, facts, and format."
+}

@@ -1,0 +1,17 @@
+html { background: #fff; }
+body { margin: 0 auto; padding: 1.2em 1.1em 3em; max-width: 44em; color: #111; background: #fff; font-family: serif; line-height: 1.72; }
+h1 { font-size: 1.55em; margin: 1.5em 0 0.9em; line-height: 1.35; }
+h2 { font-size: 1.28em; margin: 1.7em 0 0.7em; page-break-after: avoid; }
+h3 { font-size: 1.1em; margin: 1.45em 0 0.55em; page-break-after: avoid; }
+h4 { font-size: 1em; margin: 1.2em 0 0.45em; page-break-after: avoid; }
+p { margin: 0 0 0.9em; text-align: left; }
+ul { margin: 0.4em 0 1em 1.25em; padding: 0; }
+li { margin: 0.25em 0; }
+.note { border-left: 0.18em solid #777; padding-left: 0.8em; margin: 1em 0; }
+.source { font-size: 0.88em; margin-top: 0.4em; }
+.visual { margin: 1.2em 0 1.4em; page-break-inside: avoid; }
+.visual img { display: block; width: 100%; max-width: 100%; height: auto; margin: 0.6em auto; }
+.visual-title { font-weight: bold; margin-bottom: 0.45em; }
+.label { font-weight: bold; }
+.logic-chain p { margin: 0.35em 0; }
+hr { border: 0; border-top: 1px solid #aaa; margin: 1.7em 0; }

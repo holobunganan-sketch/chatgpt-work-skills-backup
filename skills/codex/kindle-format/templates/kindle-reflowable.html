@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kindle Reflowable Document</title>
+  <style>
+    html, body { padding: 0; }
+    body {
+      margin: 0 5%;
+      line-height: 1.5;
+      word-wrap: break-word;
+    }
+    h1 {
+      font-size: 1.6em;
+      margin: 0 0 1em;
+      page-break-before: always;
+      break-before: page;
+    }
+    h2 { font-size: 1.3em; margin: 1.4em 0 0.6em; }
+    h3 { font-size: 1.12em; margin: 1.2em 0 0.5em; }
+    p { text-indent: 2em; margin: 0 0 0.6em; }
+    .noindent, figcaption, li, th, td { text-indent: 0; }
+    nav.toc { margin: 1em 0 2em; }
+    nav.toc ol { padding-left: 1.4em; }
+    figure { margin: 1em 0; }
+    img { display: block; max-width: 100%; height: auto; margin: 0 auto; }
+    figcaption { font-size: 0.9em; margin-top: 0.4em; }
+    table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+    th, td { border: 0.08em solid #666; padding: 0.35em; vertical-align: top; }
+    blockquote, .keypoint {
+      margin: 1em 0;
+      padding-left: 0.8em;
+      border-left: 0.25em solid #555;
+    }
+  </style>
+</head>
+<body>
+  <nav class="toc" aria-label="目录">
+    <h1 id="toc">目录</h1>
+    <ol>
+      <li><a href="#ch1">第一章 示例章节</a>
+        <ol>
+          <li><a href="#ch1-s1">1.1 示例小节</a></li>
+        </ol>
+      </li>
+    </ol>
+  </nav>
+
+  <main>
+    <section>
+      <h1 id="ch1">第一章 示例章节</h1>
+      <p class="noindent">这里放置章节导语。正文应保持连续、完整、适合长时间阅读。</p>
+
+      <h2 id="ch1-s1">1.1 示例小节</h2>
+      <p>这里放置正文。对于医学、科学或专业知识，应保留完整的因果关系、机制解释和证据逻辑。</p>
+
+      <aside class="keypoint">
+        <p class="noindent"><strong>核心概念</strong></p>
+        <p class="noindent">关键概念的简洁说明。</p>
+      </aside>
+
+      <figure>
+        <img src="images/example.png" alt="示例图：描述图中最重要的信息">
+        <figcaption>图1. 示例图注。重要解释应保留在HTML文字中。</figcaption>
+      </figure>
+
+      <table>
+        <thead>
+          <tr><th>指标</th><th>内容</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>示例</td><td>示例内容</td><td>补充说明</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

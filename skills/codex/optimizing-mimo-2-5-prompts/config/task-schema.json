@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MiMo-V2.5 prompt task specification",
+  "type": "object",
+  "required": ["task_type", "goal", "deliverable", "audience"],
+  "properties": {
+    "task_type": {"type": "string", "minLength": 1},
+    "goal": {"type": "string", "minLength": 1},
+    "deliverable": {"type": "string", "minLength": 1},
+    "audience": {"type": "string", "minLength": 1},
+    "profile": {"enum": ["general", "writing", "medical", "long-context", "agent"]},
+    "context": {"type": "array", "items": {"type": "string"}},
+    "sources": {"type": "array", "items": {"type": "string"}},
+    "source_priority": {"type": "array", "items": {"type": "string"}},
+    "constraints": {"type": "array", "items": {"type": "string"}},
+    "quality_gate": {"type": "array", "items": {"type": "string"}},
+    "output_format": {"type": "string"},
+    "length": {"type": "string"},
+    "language": {"type": "string"},
+    "detail_level": {"type": "string"},
+    "materials_placeholder": {"type": "string"}
+  },
+  "additionalProperties": true
+}

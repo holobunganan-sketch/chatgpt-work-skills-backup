@@ -1,0 +1,21 @@
+{
+  "title": "本地项目修复并验证",
+  "task_type": "agent",
+  "objective": "定位指定故障、实施最小修复、运行验证并报告最终状态",
+  "deliverable": "已验证的修复及简洁结果报告",
+  "audience": "项目维护者",
+  "risk": "high",
+  "complexity": "complex",
+  "agentic": true,
+  "long_context": true,
+  "provider": "deepseek-official",
+  "constraints": ["保留用户未提交改动", "禁止伪造测试结果"],
+  "quality_checks": ["故障复现路径已覆盖", "修复后目标验证通过", "diff无无关修改"],
+  "tools": [
+    {"name": "shell", "when": "需要检查文件、运行测试或验证本地状态时"},
+    {"name": "git", "when": "需要检查变更范围和仓库状态时"}
+  ],
+  "output": {"language": "zh-CN", "format": "完成状态+修改摘要+验证证据", "length": "简洁"},
+  "cache": {"stable_context": ["项目级开发约束与仓库规范"], "dynamic_context": ["当前故障描述与工作树状态"]},
+  "stop_condition": "目标故障修复、验证通过且最终diff检查完成后立即停止"
+}

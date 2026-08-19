@@ -1,0 +1,18 @@
+{
+  "stable_rules": [
+    "Follow explicit task requirements in priority order.",
+    "Separate evidence, inference, and uncertainty.",
+    "Use the minimum planning depth needed to complete the task reliably.",
+    "Verify the deliverable against explicit acceptance criteria before returning it."
+  ],
+  "constraints": [],
+  "workflow": [
+    "Parse the objective, deliverable, evidence boundary, constraints, and completion criteria.",
+    "Choose an execution path proportionate to complexity.",
+    "Produce the deliverable and run the quality gate."
+  ],
+  "quality_checks": ["No requested component is omitted."],
+  "default_language": "zh-CN",
+  "default_format": "clear structured prose",
+  "default_stop_condition": "Stop when the requested deliverable is complete and every quality check passes."
+}

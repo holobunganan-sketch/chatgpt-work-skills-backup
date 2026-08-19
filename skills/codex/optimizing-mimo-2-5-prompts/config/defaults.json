@@ -1,0 +1,37 @@
+{
+  "version": "1.0.0",
+  "required_fields": ["task_type", "goal", "deliverable", "audience"],
+  "default_profile": "general",
+  "workflow": [
+    "理解任务、交付物和输入边界",
+    "提取完成任务所需的信息，并建立必要的来源映射",
+    "完成分析、写作或执行；阶段内部方法可自行决定",
+    "依据 QUALITY GATE 自检并修正",
+    "仅输出符合 OUTPUT 约束的最终结果"
+  ],
+  "required_sections": [
+    "# TASK",
+    "# CONTEXT",
+    "# SOURCES",
+    "# WORKFLOW",
+    "# CONSTRAINTS",
+    "# OUTPUT",
+    "# QUALITY GATE"
+  ],
+  "weak_constraint_terms": ["尽量", "最好", "注意不要", "酌情", "适当", "认真一点"],
+  "cache_prefix_order": [
+    "system_identity",
+    "global_rules",
+    "domain_rules",
+    "workflow",
+    "tool_rules",
+    "output_standards",
+    "quality_gate"
+  ],
+  "cache_variable_suffix": [
+    "project_state",
+    "current_task",
+    "current_materials",
+    "current_constraints"
+  ]
+}

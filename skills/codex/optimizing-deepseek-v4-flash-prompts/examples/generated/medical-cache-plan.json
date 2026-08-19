@@ -1,0 +1,25 @@
+{
+  "strategy": "stable-prefix-first",
+  "stable_items": 6,
+  "dynamic_items": 3,
+  "stable_prefix": [
+    "Use medically precise terminology and distinguish observed results from interpretation.",
+    "Keep population, intervention/exposure, comparator, endpoint, timing, and analysis set aligned.",
+    "Trace quantitative claims to supplied evidence when sources are provided.",
+    "Flag evidence gaps, indirectness, conflicting sources, and clinically material uncertainty.",
+    "医学事务内部材料；保持学术严谨和来源可追溯",
+    "source:PAPER1"
+  ],
+  "dynamic_suffix": [
+    "本轮重点关注主要终点和安全性",
+    "current-task",
+    "current-output-contract"
+  ],
+  "rules": [
+    "Keep reusable system rules, reusable skills and stable documents before per-turn task text.",
+    "Do not insert timestamps, request IDs or volatile metadata into the reusable prefix.",
+    "If the same document will be queried repeatedly, mark it cache_scope=stable and place the changing question later.",
+    "Preserve byte/token-equivalent prefix ordering across repeated calls when the provider supports DeepSeek prefix caching.",
+    "Monitor prompt_cache_hit_tokens and prompt_cache_miss_tokens on the official API when available."
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "stable_rules": [
+    "Define the research question before synthesis.",
+    "Prefer primary/authoritative evidence when source quality differs.",
+    "Keep search findings, source claims, and model inference distinguishable.",
+    "Report unresolved contradictions instead of averaging them away."
+  ],
+  "constraints": ["Do not cite a source for a claim the source does not support."],
+  "workflow": [
+    "Translate the objective into answerable subquestions.",
+    "Collect or inspect evidence for each subquestion.",
+    "Build a compact evidence map before writing the synthesis.",
+    "Verify the final claims against the evidence map."
+  ],
+  "quality_checks": ["Each load-bearing conclusion has adequate evidence support."],
+  "default_language": "zh-CN",
+  "default_format": "answer-first research synthesis",
+  "default_stop_condition": "Stop when all research subquestions are answered or explicitly marked unresolved."
+}

@@ -1,0 +1,10 @@
+{
+  "name": "optimizing-mimo-2-5-prompts",
+  "version": "1.0.0",
+  "skill_entry": "SKILL.md",
+  "runtime": "python>=3.10",
+  "dependencies": [],
+  "tool_entry": "scripts/mimo_prompt_tool.py",
+  "commands": ["scaffold", "validate-spec", "compile", "lint", "cache-plan"],
+  "profiles": ["general", "writing", "medical", "long-context", "agent"]
+}

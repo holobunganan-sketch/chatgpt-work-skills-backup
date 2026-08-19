@@ -1,0 +1,9 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "type":"object",
+  "required":["id","kind","number","asset","source_pages","interpretation"],
+  "properties":{
+    "id":{"type":"string"},"kind":{"enum":["figure","table","equation","other"]},"number":{"type":"string"},
+    "title_zh":{"type":"string"},"asset":{"type":"string"},"source_pages":{"type":"array","items":{"type":"integer"}},"interpretation":{"type":"string"}
+  }
+}

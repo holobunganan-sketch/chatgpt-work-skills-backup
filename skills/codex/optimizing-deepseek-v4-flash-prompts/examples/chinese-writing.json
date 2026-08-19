@@ -1,0 +1,16 @@
+{
+  "title": "中文工作说明润色",
+  "task_type": "writing",
+  "objective": "将事实材料改写成适合直属领导签字的正式说明",
+  "deliverable": "可直接使用的中文说明",
+  "audience": "直属领导与财务流程审核人员",
+  "risk": "low",
+  "complexity": "routine",
+  "agentic": false,
+  "long_context": false,
+  "constraints": ["不得添加未提供的流程事实", "语气正式简洁"],
+  "quality_checks": ["编号、日期和事由完全保留"],
+  "output": {"language": "zh-CN", "format": "完整自然段", "length": "300字以内"},
+  "sources": [],
+  "cache": {"stable_context": ["长期中文工作写作规范"], "dynamic_context": ["本轮事实材料"]}
+}

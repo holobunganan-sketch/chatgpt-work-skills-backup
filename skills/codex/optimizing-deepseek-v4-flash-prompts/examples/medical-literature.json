@@ -1,0 +1,29 @@
+{
+  "title": "临床研究医学摘要",
+  "task_type": "medical",
+  "objective": "依据给定研究全文提取设计、主要终点、关键结果、安全性与局限",
+  "deliverable": "供医学事务内部讨论使用的中文摘要",
+  "audience": "MSL/MA",
+  "risk": "medium",
+  "complexity": "complex",
+  "agentic": false,
+  "long_context": true,
+  "provider": "deepseek-official",
+  "constraints": [
+    "所有数字必须来自所给全文",
+    "区分预设分析、探索性分析和事后分析",
+    "无法确认的信息写明材料未提供"
+  ],
+  "quality_checks": [
+    "核对样本量、分析集、终点定义、时间点、效应值、置信区间和P值",
+    "结论强度不得超过研究设计"
+  ],
+  "output": {"language": "zh-CN", "format": "自然段为主，必要时使用紧凑项目符号", "length": "1500字以内"},
+  "sources": [
+    {"id": "PAPER1", "name": "研究全文", "authority": "primary", "cache_scope": "stable", "content": "<在此放置全文>"}
+  ],
+  "cache": {
+    "stable_context": ["医学事务内部材料；保持学术严谨和来源可追溯"],
+    "dynamic_context": ["本轮重点关注主要终点和安全性"]
+  }
+}

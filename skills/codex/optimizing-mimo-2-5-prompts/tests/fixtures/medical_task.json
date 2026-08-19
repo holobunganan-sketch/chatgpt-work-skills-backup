@@ -1,0 +1,12 @@
+{
+  "task_type": "医学文献分析",
+  "goal": "提取研究设计、PICO、终点、主要结果和局限",
+  "deliverable": "结构化医学分析",
+  "audience": "制药企业医学团队",
+  "context": ["材料可能包含多篇研究"],
+  "sources": ["用户提供的论文全文"],
+  "source_priority": ["论文正文", "补充材料", "摘要"],
+  "constraints": ["区分原文事实与模型推断", "所有数字必须可追溯到来源"],
+  "quality_gate": ["核对样本量和终点", "标记材料未提供的信息"],
+  "profile": "medical"
+}

@@ -1,0 +1,10 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "type":"object",
+  "required":["schema_version","paper","orientation","seven_elements","source_sections","units","visuals","synthesis","glossary"],
+  "properties":{
+    "schema_version":{"const":"2.0"},"paper":{"type":"object"},"orientation":{"type":"object"},"seven_elements":{"type":"object"},
+    "source_sections":{"type":"array"},"units":{"type":"array"},"visuals":{"type":"array"},"section_summaries":{"type":"array"},
+    "synthesis":{"type":"object"},"glossary":{"type":"array"}
+  }
+}

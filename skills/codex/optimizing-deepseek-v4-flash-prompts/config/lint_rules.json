@@ -1,0 +1,14 @@
+{
+  "required_sections": [
+    "STABLE PREFIX",
+    "CURRENT TASK",
+    "SOURCE AUTHORITY",
+    "CONSTRAINTS",
+    "OUTPUT CONTRACT",
+    "QUALITY GATE",
+    "STOP CONDITION"
+  ],
+  "cache_rule": "stable-prefix-first",
+  "source_boundary_tag": "SOURCE",
+  "reasoning_policy": "route nonthink/high/max; do not hard-code max for every request"
+}

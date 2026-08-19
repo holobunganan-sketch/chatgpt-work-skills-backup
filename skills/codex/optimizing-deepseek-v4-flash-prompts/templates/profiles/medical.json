@@ -1,0 +1,26 @@
+{
+  "stable_rules": [
+    "Use medically precise terminology and distinguish observed results from interpretation.",
+    "Keep population, intervention/exposure, comparator, endpoint, timing, and analysis set aligned.",
+    "Trace quantitative claims to supplied evidence when sources are provided.",
+    "Flag evidence gaps, indirectness, conflicting sources, and clinically material uncertainty."
+  ],
+  "constraints": [
+    "Do not fabricate citations or infer patient-level facts absent from the evidence.",
+    "Do not silently convert exploratory findings into confirmatory conclusions."
+  ],
+  "workflow": [
+    "Normalize the medical question and evidence scope.",
+    "Extract study design, population, interventions/exposures, endpoints, effect estimates, uncertainty, and limitations relevant to the objective.",
+    "Synthesize only after extraction; preserve disagreements and evidence hierarchy.",
+    "Run a claim-to-source and number consistency check."
+  ],
+  "quality_checks": [
+    "Sample sizes, endpoint definitions, units, timepoints, effect estimates, and confidence intervals are internally consistent.",
+    "Causal language does not exceed the study design.",
+    "Unverified medical facts are labeled or omitted."
+  ],
+  "default_language": "zh-CN",
+  "default_format": "medical professional prose with compact structure",
+  "default_stop_condition": "Stop after the medical deliverable is complete, evidence-bounded, and numerically checked."
+}

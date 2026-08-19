@@ -1,0 +1,8 @@
+{
+  "name": "zh-academic-paper-reader",
+  "version": "2.0.0",
+  "display_name_zh": "中文学术文献深度伴读",
+  "aliases_zh": ["中文医学文献伴读", "学术论文伴读", "英文学术论文深读", "Kindle 论文伴读"],
+  "fixed_top_sections": ["论文题目", "阅读前先建立框架", "文献类型与阅读路线", "正文伴读", "全文串联理解", "术语与符号说明"],
+  "allowed_unit_labels": ["中文译文", "理解提示", "图表解读", "本节小结", "原文位置"]
+}
